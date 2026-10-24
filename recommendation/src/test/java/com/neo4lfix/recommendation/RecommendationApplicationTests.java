@@ -1,4 +1,4 @@
-package com.neo4lfix.recommendation;
+package com.neo4flix.recommendation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

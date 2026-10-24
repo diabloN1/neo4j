@@ -1,4 +1,4 @@
-package com.neo4lfix.rating;
+package com.neo4flix.rating;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,13 +1,13 @@
-package com.neo4lfix.user;
+package com.neo4flix.rating;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class UserApplication {
+public class RatingApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(UserApplication.class, args);
+		SpringApplication.run(RatingApplication.class, args);
 	}
 
 }

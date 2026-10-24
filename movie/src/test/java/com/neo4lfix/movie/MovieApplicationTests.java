@@ -1,4 +1,4 @@
-package com.neo4lfix.movie;
+package com.neo4flix.movie;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

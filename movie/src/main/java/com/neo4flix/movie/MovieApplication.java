@@ -1,4 +1,4 @@
-package com.neo4lfix.movie;
+package com.neo4flix.movie;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
