@@ -15,6 +15,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -39,8 +41,8 @@ public class SecurityConfig {
                                 .csrf(csrf -> csrf.disable())
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers(HttpMethod.GET, "/api/movies", "/api/movies/**")
-                                                .permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/movies", "/api/movies/**").permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                                                 .requestMatchers("/actuator/health").permitAll()
                                                 .anyRequest().authenticated())
                                 .oauth2ResourceServer(oauth -> oauth
@@ -127,5 +129,10 @@ public class SecurityConfig {
                                 config);
 
                 return source;
+        }
+
+        @Bean
+        PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
         }
 }
