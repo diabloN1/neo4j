@@ -1,14 +1,16 @@
 package com.neo4flix.movie.service;
 
+import com.neo4flix.movie.dto.MovieDetails;
+import com.neo4flix.movie.dto.MoviePage;
+import com.neo4flix.movie.dto.MovieSummary;
 import com.neo4flix.movie.entity.Actor;
 import com.neo4flix.movie.entity.Director;
 import com.neo4flix.movie.entity.Genre;
 import com.neo4flix.movie.entity.Movie;
-import com.neo4flix.movie.dto.MovieDetails;
-import com.neo4flix.movie.dto.MoviePage;
-import com.neo4flix.movie.dto.MovieSummary;
 import com.neo4flix.movie.exception.MovieNotFoundException;
 import com.neo4flix.movie.repository.MovieRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,41 +30,33 @@ public class MovieService {
             String search,
             String genre,
             Integer year,
-            int page,
-            int size) {
+            Pageable pageable) {
 
-        if (page < 0) {
+        if (pageable.getPageNumber() < 0) {
             throw new IllegalArgumentException(
                     "Page must be zero or greater");
         }
 
-        if (size < 1 || size > 100) {
+        if (pageable.getPageSize() < 1
+                || pageable.getPageSize() > 100) {
             throw new IllegalArgumentException(
                     "Size must be between 1 and 100");
         }
 
-        long skip = Math.multiplyExact((long) page, size);
-
-        List<MovieSummary> content = repository.searchMovies(
+        Page<MovieSummary> movies = repository.searchMovies(
                         normalize(search),
                         normalize(genre),
                         year,
-                        skip,
-                        size)
-                .stream()
-                .map(this::toSummary)
-                .toList();
+                        pageable)
+                .map(this::toSummary);
 
-        long total = repository.countMovies(
-                normalize(search),
-                normalize(genre),
-                year);
-
-        int totalPages = total == 0
-                ? 0
-                : (int) Math.ceil((double) total / size);
-
-        return new MoviePage(content, total, page, size, totalPages);
+        return new MoviePage(
+                movies.getContent(),
+                movies.getTotalElements(),
+                movies.getNumber(),
+                movies.getSize(),
+                movies.getTotalPages()
+        );
     }
 
     @Transactional(readOnly = true)
@@ -155,6 +149,8 @@ public class MovieService {
     }
 
     private String normalize(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
+        return value == null || value.isBlank()
+                ? null
+                : value.trim();
     }
 }

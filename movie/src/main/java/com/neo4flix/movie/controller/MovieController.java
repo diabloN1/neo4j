@@ -3,8 +3,8 @@ package com.neo4flix.movie.controller;
 import com.neo4flix.movie.dto.MovieDetails;
 import com.neo4flix.movie.dto.MoviePage;
 import com.neo4flix.movie.service.MovieService;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,10 +26,10 @@ public class MovieController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String genre,
             @RequestParam(required = false) Integer year,
-            @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+            Pageable pageable
+        ) {
 
-        return service.findMovies(search, genre, year, page, size);
+        return service.findMovies(search, genre, year, pageable);
     }
 
     @GetMapping("/genres")
