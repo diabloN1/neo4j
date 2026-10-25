@@ -1,6 +1,7 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
 import { ZardButtonComponent } from "./shared/components/button";
+import { AuthService } from "./services/auth.service";
 
 @Component({
   selector: "app-root",
@@ -37,15 +38,26 @@ import { ZardButtonComponent } from "./shared/components/button";
               >Powered by Neo4j</span
             >
           </nav>
+
           <div
             class="ml-auto hidden items-center gap-2 text-xs text-zinc-400 sm:flex"
           >
-            <span class="size-2 rounded-full bg-emerald-400"></span>
-            Movie catalog
-          </div>
-          <div>
-            <button z-button class="mx-1">Log-in</button>
-            <button z-button zType="secondary">Register</button>
+            @if (!authService.isAuthenticated()) {
+              <button z-button class="mx-1" routerLink="/login">Log-in</button>
+              <button z-button zType="secondary" routerLink="/register">
+                Register
+              </button>
+            } @else {
+              <span class="size-2 rounded-full bg-emerald-400"></span>
+              Loged In
+              <button
+                z-button
+                zType="destructive"
+                (click)="authService.logout()"
+              >
+                Logout
+              </button>
+            }
           </div>
         </div>
       </header>
@@ -66,4 +78,6 @@ import { ZardButtonComponent } from "./shared/components/button";
     </div>
   `,
 })
-export class AppComponent {}
+export class AppComponent {
+  authService = inject(AuthService);
+}
