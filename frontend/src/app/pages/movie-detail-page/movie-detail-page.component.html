@@ -1,0 +1,101 @@
+<main class="mx-auto min-h-[65vh] max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+  <a z-button zType="ghost" routerLink="/movies" class="mb-8"
+    >← Back to discovery</a
+  >
+  <div
+    *ngIf="loading()"
+    class="flex min-h-64 flex-col items-center justify-center gap-4 text-sm text-zinc-400"
+  >
+    <span
+      class="size-8 animate-spin rounded-full border-2 border-zinc-700 border-t-rose-500"
+    ></span
+    >Loading movie details…
+  </div>
+  <section
+    *ngIf="error() && !loading()"
+    class="flex min-h-64 flex-col items-center justify-center gap-4 text-center"
+  >
+    <h2 class="text-2xl font-bold text-white">Movie unavailable</h2>
+    <p class="text-sm text-zinc-400">{{ error() }}</p>
+    <a z-button routerLink="/movies">Back to movies</a>
+  </section>
+  <section
+    *ngIf="movie() as item"
+    class="grid items-start gap-8 md:grid-cols-[minmax(220px,340px)_minmax(0,1fr)] md:gap-12 lg:gap-16"
+  >
+    <div
+      class="overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-2xl shadow-black/40"
+    >
+      <img
+        *ngIf="item.poster && !posterFailed()"
+        [src]="item.poster"
+        [alt]="item.title + ' poster'"
+        class="block h-auto w-full object-cover"
+        (error)="posterFailed.set(true)"
+      />
+      <div
+        *ngIf="!item.poster || posterFailed()"
+        class="flex min-h-[420px] flex-col items-center justify-center gap-3 bg-gradient-to-br from-rose-950 to-zinc-900 text-rose-300"
+      >
+        <b class="text-6xl font-black">N</b
+        ><small class="tracking-[0.3em]">NEO4FLIX</small>
+      </div>
+    </div>
+    <div class="pt-2">
+      <z-badge zType="outline" class="border-rose-500/40 text-rose-300"
+        >MOVIE DETAILS</z-badge
+      >
+      <h1
+        class="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl"
+      >
+        {{ item.title }}
+      </h1>
+      <div class="mt-5 flex flex-wrap gap-3 text-sm text-zinc-400">
+        <z-badge *ngIf="item.year" zType="secondary">{{ item.year }}</z-badge
+        ><z-badge *ngIf="item.runtime" zType="secondary"
+          >{{ item.runtime }} min</z-badge
+        ><z-badge
+          *ngIf="item.imdbRating"
+          class="border-amber-500/30 bg-amber-500/10 text-amber-300"
+          >★ {{ item.imdbRating }} IMDb</z-badge
+        >
+      </div>
+      <p *ngIf="item.tagline" class="mt-8 text-lg italic text-rose-300">
+        {{ item.tagline }}
+      </p>
+      <p class="mt-4 max-w-3xl text-base leading-8 text-zinc-300">
+        {{ item.plot || "No plot summary is available yet." }}
+      </p>
+      <div *ngIf="item.genres?.length" class="mt-8">
+        <h2 class="text-xs font-bold tracking-[0.2em] text-zinc-500">GENRES</h2>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <z-badge *ngFor="let genre of item.genres" zType="secondary">{{
+            genre
+          }}</z-badge>
+        </div>
+      </div>
+      <div *ngIf="item.released" class="mt-7">
+        <h2 class="text-xs font-bold tracking-[0.2em] text-zinc-500">
+          RELEASED
+        </h2>
+        <p class="mt-2 text-sm text-zinc-200">{{ item.released }}</p>
+      </div>
+      <div *ngIf="item.directors?.length" class="mt-7">
+        <h2 class="text-xs font-bold tracking-[0.2em] text-zinc-500">
+          DIRECTED BY
+        </h2>
+        <p class="mt-2 text-sm text-zinc-200">
+          {{ item.directors!.join(", ") }}
+        </p>
+      </div>
+      <div *ngIf="item.actors?.length" class="mt-7">
+        <h2 class="text-xs font-bold tracking-[0.2em] text-zinc-500">
+          ACTORS
+        </h2>
+        <p class="mt-2 text-sm leading-7 text-zinc-200">
+          {{ item.actors!.slice(0, 10).join(", ") }}
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
