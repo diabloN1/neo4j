@@ -1,101 +1,270 @@
-<main class="mx-auto min-h-[65vh] max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-  <a z-button zType="ghost" routerLink="/movies" class="mb-8"
-    >← Back to discovery</a
-  >
+<main class="min-h-screen bg-[#141414] text-white">
+  <!-- Back navigation -->
+  <div class="fixed left-4 top-5 z-20 sm:left-8 sm:top-8">
+    <a
+      z-button
+      zType="ghost"
+      routerLink="/movies"
+      class="mt-16 border border-white/10 bg-black/30 text-white backdrop-blur-md hover:bg-white/10"
+    >
+      ← Back to discovery
+    </a>
+  </div>
+
+  <!-- Loading -->
   <div
     *ngIf="loading()"
-    class="flex min-h-64 flex-col items-center justify-center gap-4 text-sm text-zinc-400"
+    class="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#141414] text-sm text-zinc-400"
   >
     <span
-      class="size-8 animate-spin rounded-full border-2 border-zinc-700 border-t-rose-500"
-    ></span
-    >Loading movie details…
+      class="size-10 animate-spin rounded-full border-2 border-zinc-700 border-t-rose-600"
+    ></span>
+    Loading movie details…
   </div>
+
+  <!-- Error -->
   <section
     *ngIf="error() && !loading()"
-    class="flex min-h-64 flex-col items-center justify-center gap-4 text-center"
+    class="flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center"
   >
-    <h2 class="text-2xl font-bold text-white">Movie unavailable</h2>
-    <p class="text-sm text-zinc-400">{{ error() }}</p>
+    <h2 class="text-3xl font-bold">Movie unavailable</h2>
+    <p class="max-w-md text-zinc-400">{{ error() }}</p>
     <a z-button routerLink="/movies">Back to movies</a>
   </section>
-  <section
-    *ngIf="movie() as item"
-    class="grid items-start gap-8 md:grid-cols-[minmax(220px,340px)_minmax(0,1fr)] md:gap-12 lg:gap-16"
-  >
-    <div
-      class="overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-2xl shadow-black/40"
+
+  <ng-container *ngIf="movie() as item">
+    <!-- Cinematic hero -->
+    <section
+      class="relative isolate min-h-[680px] overflow-hidden sm:min-h-[760px]"
     >
-      <img
-        *ngIf="item.poster && !posterFailed()"
-        [src]="item.poster"
-        [alt]="item.title + ' poster'"
-        class="block h-auto w-full object-cover"
-        (error)="posterFailed.set(true)"
-      />
+      <!-- Poster background -->
+      <div class="absolute inset-0 -z-20">
+        <img
+          *ngIf="item.poster && !posterFailed()"
+          [src]="item.poster"
+          [alt]="''"
+          aria-hidden="true"
+          class="h-full w-full scale-105 object-cover object-top opacity-40 blur-[2px]"
+          (error)="posterFailed.set(true)"
+        />
+
+        <div
+          *ngIf="!item.poster || posterFailed()"
+          class="h-full w-full bg-gradient-to-br from-rose-950 via-[#141414] to-black"
+        ></div>
+      </div>
+
+      <!-- Cinematic gradients -->
       <div
-        *ngIf="!item.poster || posterFailed()"
-        class="flex min-h-[420px] flex-col items-center justify-center gap-3 bg-gradient-to-br from-rose-950 to-zinc-900 text-rose-300"
+        class="absolute inset-0 -z-10 bg-gradient-to-r from-[#141414] via-[#141414]/80 to-black/20"
+      ></div>
+      <div
+        class="absolute inset-0 -z-10 bg-gradient-to-t from-[#141414] via-transparent to-black/50"
+      ></div>
+
+      <!-- Hero content -->
+      <div
+        class="mx-auto flex min-h-[680px] max-w-[1600px] items-center px-5 pb-16 pt-28 sm:min-h-[760px] sm:px-10 lg:px-16"
       >
-        <b class="text-6xl font-black">N</b
-        ><small class="tracking-[0.3em]">NEO4FLIX</small>
-      </div>
-    </div>
-    <div class="pt-2">
-      <z-badge zType="outline" class="border-rose-500/40 text-rose-300"
-        >MOVIE DETAILS</z-badge
-      >
-      <h1
-        class="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl"
-      >
-        {{ item.title }}
-      </h1>
-      <div class="mt-5 flex flex-wrap gap-3 text-sm text-zinc-400">
-        <z-badge *ngIf="item.year" zType="secondary">{{ item.year }}</z-badge
-        ><z-badge *ngIf="item.runtime" zType="secondary"
-          >{{ item.runtime }} min</z-badge
-        ><z-badge
-          *ngIf="item.imdbRating"
-          class="border-amber-500/30 bg-amber-500/10 text-amber-300"
-          >★ {{ item.imdbRating }} IMDb</z-badge
+        <div
+          class="grid w-full items-center gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-16"
         >
-      </div>
-      <p *ngIf="item.tagline" class="mt-8 text-lg italic text-rose-300">
-        {{ item.tagline }}
-      </p>
-      <p class="mt-4 max-w-3xl text-base leading-8 text-zinc-300">
-        {{ item.plot || "No plot summary is available yet." }}
-      </p>
-      <div *ngIf="item.genres?.length" class="mt-8">
-        <h2 class="text-xs font-bold tracking-[0.2em] text-zinc-500">GENRES</h2>
-        <div class="mt-3 flex flex-wrap gap-2">
-          <z-badge *ngFor="let genre of item.genres" zType="secondary">{{
-            genre
-          }}</z-badge>
+          <!-- Main information -->
+          <div class="max-w-3xl">
+            <div class="mb-5 flex items-center gap-3">
+              <span class="text-2xl font-black tracking-tighter text-rose-600">
+                N
+              </span>
+              <span
+                class="text-sm font-bold uppercase tracking-[0.3em] text-zinc-300"
+              >
+                Neo4flix Originals
+              </span>
+            </div>
+
+            <z-badge
+              zType="outline"
+              class="border-white/30 bg-black/20 text-zinc-200"
+            >
+              FEATURE FILM
+            </z-badge>
+
+            <h1
+              class="mt-5 text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
+            >
+              {{ item.title }}
+            </h1>
+
+            <!-- Metadata -->
+            <div
+              class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 text-sm"
+            >
+              <span *ngIf="item.imdbRating" class="font-bold text-green-400">
+                ★ {{ item.imdbRating }} IMDb
+              </span>
+
+              <span *ngIf="item.year" class="text-zinc-300">
+                {{ item.year }}
+              </span>
+
+              <span
+                *ngIf="item.runtime"
+                class="rounded border border-white/30 px-2 py-0.5 text-zinc-300"
+              >
+                {{ item.runtime }} min
+              </span>
+
+              <span
+                class="rounded border border-white/30 px-2 py-0.5 text-zinc-300"
+              >
+                HD
+              </span>
+            </div>
+
+            <!-- Genres -->
+            <div *ngIf="item.genres?.length" class="mt-5 flex flex-wrap gap-2">
+              <z-badge
+                *ngFor="let genre of item.genres"
+                zType="secondary"
+                class="border-white/10 bg-white/10 text-zinc-200"
+              >
+                {{ genre }}
+              </z-badge>
+            </div>
+
+            <!-- Tagline -->
+            <p
+              *ngIf="item.tagline"
+              class="mt-6 text-lg font-medium italic text-zinc-300 sm:text-xl"
+            >
+              {{ item.tagline }}
+            </p>
+
+            <!-- Plot -->
+            <p
+              class="mt-4 max-w-2xl text-sm leading-7 text-zinc-300 sm:text-base sm:leading-8"
+            >
+              {{ item.plot || "No plot summary is available yet." }}
+            </p>
+
+            <!-- Actions -->
+            <div class="mt-8 flex flex-wrap items-center gap-3">
+              <button
+                *ngIf="playerUrl() && !playerOpen()"
+                z-button
+                type="button"
+                class="h-12 gap-3 bg-white px-7 text-base font-bold text-black hover:bg-zinc-200"
+                (click)="playMovie()"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M8 5.14v13.72a.75.75 0 0 0 1.13.65l11-6.86a.75.75 0 0 0 0-1.3l-11-6.86A.75.75 0 0 0 8 5.14Z"
+                  />
+                </svg>
+                Play
+              </button>
+
+              <p *ngIf="!playerUrl()" class="text-sm text-zinc-400">
+                Playback unavailable: no valid TMDB ID.
+              </p>
+            </div>
+          </div>
+
+          <!-- Poster card -->
+          <div class="hidden lg:block">
+            <div
+              class="overflow-hidden rounded-xl border border-white/10 bg-zinc-900 shadow-2xl shadow-black/50 transition-transform duration-300 hover:scale-[1.02]"
+            >
+              <img
+                *ngIf="item.poster && !posterFailed()"
+                [src]="item.poster"
+                [alt]="item.title + ' poster'"
+                class="aspect-[2/3] w-full object-cover"
+                (error)="posterFailed.set(true)"
+              />
+
+              <div
+                *ngIf="!item.poster || posterFailed()"
+                class="flex aspect-[2/3] flex-col items-center justify-center bg-gradient-to-br from-rose-950 to-zinc-900"
+              >
+                <span class="text-7xl font-black text-rose-500">N</span>
+                <span class="mt-3 text-xs tracking-[0.3em] text-zinc-400">
+                  NEO4FLIX
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div *ngIf="item.released" class="mt-7">
-        <h2 class="text-xs font-bold tracking-[0.2em] text-zinc-500">
-          RELEASED
-        </h2>
-        <p class="mt-2 text-sm text-zinc-200">{{ item.released }}</p>
+    </section>
+
+    <!-- Additional details -->
+    <section class="mx-auto max-w-[1600px] px-5 pb-20 sm:px-10 lg:px-16">
+      <div class="border-t border-white/10 pt-8">
+        <h2 class="text-xl font-bold sm:text-2xl">About this movie</h2>
+
+        <div class="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div *ngIf="item.released">
+            <p
+              class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500"
+            >
+              Release date
+            </p>
+            <p class="mt-2 text-sm text-zinc-200">{{ item.released }}</p>
+          </div>
+
+          <div *ngIf="item.directors?.length">
+            <p
+              class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500"
+            >
+              Director
+            </p>
+            <p class="mt-2 text-sm leading-6 text-zinc-200">
+              {{ item.directors!.join(", ") }}
+            </p>
+          </div>
+
+          <div *ngIf="item.actors?.length">
+            <p
+              class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500"
+            >
+              Cast
+            </p>
+            <p class="mt-2 text-sm leading-7 text-zinc-200">
+              {{ item.actors!.slice(0, 10).join(", ") }}
+            </p>
+          </div>
+        </div>
       </div>
-      <div *ngIf="item.directors?.length" class="mt-7">
-        <h2 class="text-xs font-bold tracking-[0.2em] text-zinc-500">
-          DIRECTED BY
-        </h2>
-        <p class="mt-2 text-sm text-zinc-200">
-          {{ item.directors!.join(", ") }}
-        </p>
-      </div>
-      <div *ngIf="item.actors?.length" class="mt-7">
-        <h2 class="text-xs font-bold tracking-[0.2em] text-zinc-500">
-          ACTORS
-        </h2>
-        <p class="mt-2 text-sm leading-7 text-zinc-200">
-          {{ item.actors!.slice(0, 10).join(", ") }}
-        </p>
-      </div>
-    </div>
-  </section>
+    </section>
+
+    <!-- Full-screen Vidy player -->
+    <ng-container *ngIf="playerUrl() as url">
+      <section
+        *ngIf="playerOpen()"
+        class="fixed inset-0 z-[100] flex flex-col bg-black"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="'Playing ' + item.title"
+      >
+        <div class="relative flex min-h-0 flex-1 items-center justify-center">
+          <iframe
+            [src]="url"
+            [title]="'Vidy player for ' + item.title"
+            class="absolute inset-0 h-full w-full border-0"
+            allowfullscreen
+            allow="encrypted-media; autoplay *; fullscreen *"
+            referrerpolicy="strict-origin-when-cross-origin"
+          ></iframe>
+        </div>
+      </section>
+    </ng-container>
+  </ng-container>
 </main>

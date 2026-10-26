@@ -4,6 +4,7 @@ export interface Movie {
   tagline?: string | null;
   plot?: string | null;
   poster?: string | null;
+  tmdbId?: string | null;
   imdbRating?: number | null;
   released?: string | null;
   runtime?: number | null;
