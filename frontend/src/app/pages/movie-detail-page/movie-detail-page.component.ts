@@ -11,6 +11,8 @@ import { ZardButtonComponent } from "@/shared/components/button/button.component
 import { ZardCardImports } from "@/shared/components/card/card.imports";
 import { StarRatingComponent } from "@/shared/components/star-rating/star-rating.component";
 
+type PlayerProvider = "vidy" | "vidrift";
+
 @Component({
   selector: "app-movie-detail-page",
   standalone: true,
@@ -20,8 +22,8 @@ import { StarRatingComponent } from "@/shared/components/star-rating/star-rating
     ZardBadgeComponent,
     ZardButtonComponent,
     ZardCardImports,
-    StarRatingComponent
-],
+    StarRatingComponent,
+  ],
   templateUrl: "./movie-detail-page.component.html",
 })
 export class MovieDetailPageComponent implements OnInit {
@@ -33,9 +35,10 @@ export class MovieDetailPageComponent implements OnInit {
   readonly loading = signal(true);
   readonly error = signal("");
   readonly posterFailed = signal(false);
+
   readonly playerOpen = signal(false);
-  
-  userRating = 0;
+  readonly providerChooserOpen = signal(false);
+  readonly selectedProvider = signal<PlayerProvider>("vidy");
 
   readonly playerUrl = computed<SafeResourceUrl | null>(() => {
     const tmdbId = this.movie()?.tmdbId?.trim();
@@ -44,7 +47,12 @@ export class MovieDetailPageComponent implements OnInit {
       return null;
     }
 
-    const url = `https://vidy.st/movie/${tmdbId}?color=DC2626&autoplay=true`;
+    const encodedId = encodeURIComponent(tmdbId);
+
+    const url =
+      this.selectedProvider() === "vidy"
+        ? `https://vidy.st/movie/${encodedId}?color=DC2626&autoplay=true`
+        : `https://embed.vidrift.net/embed/movie/${encodedId}`;
 
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   });
@@ -58,6 +66,7 @@ export class MovieDetailPageComponent implements OnInit {
           this.error.set("");
           this.movie.set(null);
           this.playerOpen.set(false);
+          this.providerChooserOpen.set(false);
           this.posterFailed.set(false);
         }),
         switchMap((title) => {
@@ -86,9 +95,7 @@ export class MovieDetailPageComponent implements OnInit {
         }),
       )
       .subscribe({
-        next: (movie) => {
-          this.movie.set(movie);
-        },
+        next: (movie) => this.movie.set(movie),
         error: (error) =>
           this.error.set(
             error.status === 404
@@ -103,9 +110,24 @@ export class MovieDetailPageComponent implements OnInit {
   }
 
   playMovie(): void {
-    if (this.playerUrl()) {
-      this.playerOpen.set(true);
+    if (this.movie()?.tmdbId?.trim()) {
+      this.providerChooserOpen.set(true);
     }
+  }
+
+  selectProvider(provider: PlayerProvider): void {
+    this.selectedProvider.set(provider);
+    this.providerChooserOpen.set(false);
+    this.playerOpen.set(true);
+  }
+
+  changeProvider(): void {
+    this.playerOpen.set(false);
+    this.providerChooserOpen.set(true);
+  }
+
+  closeProviderChooser(): void {
+    this.providerChooserOpen.set(false);
   }
 
   closePlayer(): void {

@@ -150,7 +150,7 @@
             </div>
             <!-- User rating -->
             <div class="mt-8 max-w-xl">
-              <app-star-rating [(value)]="userRating" label="Your rating" />
+              <app-star-rating [movieId]="item.movieId" />
             </div>
           </div>
 
@@ -222,26 +222,119 @@
       </div>
     </section>
 
-    <!-- Full-screen Vidy player -->
-    <ng-container *ngIf="playerUrl() as url">
+    @if (playerOpen() && playerUrl()) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+        (click)="closePlayer()"
+      >
+        <section
+          role="dialog"
+          aria-modal="true"
+          aria-label="Movie player"
+          class="w-full max-w-6xl overflow-hidden rounded-xl bg-black shadow-2xl"
+          (click)="$event.stopPropagation()"
+        >
+          <header class="flex items-center justify-between gap-4 p-4">
+            <div>
+              <h2 class="font-semibold text-white">
+                {{ movie()?.title }}
+              </h2>
+              <p class="text-sm text-gray-400">
+                {{ selectedProvider() === "vidy" ? "Vidy" : "Vidrift" }}
+              </p>
+            </div>
+
+            <div class="flex gap-2">
+              <button
+                type="button"
+                class="rounded-md border border-white/20 px-3 py-2 text-sm text-white hover:bg-white/10"
+                (click)="changeProvider()"
+              >
+                Change player
+              </button>
+
+              <button
+                type="button"
+                class="rounded-md border border-white/20 px-3 py-2 text-sm text-white hover:bg-white/10"
+                aria-label="Close player"
+                (click)="closePlayer()"
+              >
+                ✕
+              </button>
+            </div>
+          </header>
+
+          <div class="aspect-video w-full">
+            <iframe
+              class="h-full w-full"
+              [src]="playerUrl()"
+              [title]="(movie()?.title ?? 'Movie') + ' player'"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowfullscreen
+              referrerpolicy="origin"
+            ></iframe>
+          </div>
+        </section>
+      </div>
+    }
+  </ng-container>
+
+  @if (providerChooserOpen()) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      (click)="closeProviderChooser()"
+    >
       <section
-        *ngIf="playerOpen()"
-        class="fixed inset-0 z-[100] flex flex-col bg-black"
         role="dialog"
         aria-modal="true"
-        [attr.aria-label]="'Playing ' + item.title"
+        aria-labelledby="provider-dialog-title"
+        class="w-full max-w-md rounded-xl border bg-background p-6 shadow-xl"
+        (click)="$event.stopPropagation()"
       >
-        <div class="relative flex min-h-0 flex-1 items-center justify-center">
-          <iframe
-            [src]="url"
-            [title]="'Vidy player for ' + item.title"
-            class="absolute inset-0 h-full w-full border-0"
-            allowfullscreen
-            allow="encrypted-media; autoplay *; fullscreen *"
-            referrerpolicy="strict-origin-when-cross-origin"
-          ></iframe>
+        <h2 id="provider-dialog-title" class="text-xl font-semibold">
+          Choose a player
+        </h2>
+
+        <p class="mt-2 mb-6 text-sm text-muted-foreground">
+          Choose a provider for {{ movie()?.title }}.
+        </p>
+
+        <div class="grid gap-3">
+          <button
+            type="button"
+            class="flex items-center justify-between rounded-lg border p-4 text-left transition hover:border-primary hover:bg-accent"
+            (click)="selectProvider('vidy')"
+          >
+            <span>
+              <span class="block font-medium">Vidy</span>
+              <span class="text-sm text-muted-foreground">Player 1</span>
+            </span>
+              <span class="material-icons">play_arrow</span>
+          </button>
+
+          <button
+            type="button"
+            class="flex items-center justify-between rounded-lg border p-4 text-left transition hover:border-primary hover:bg-accent"
+            (click)="selectProvider('vidrift')"
+          >
+            <span>
+              <span class="block font-medium">Vidrift</span>
+              <span class="text-sm text-muted-foreground">Player 2</span>
+            </span>
+              <span class="material-icons">play_arrow</span>
+          </button>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+          <button
+            type="button"
+            class="rounded-md border px-4 py-2 text-sm hover:bg-accent"
+            (click)="closeProviderChooser()"
+          >
+            Cancel
+          </button>
         </div>
       </section>
-    </ng-container>
-  </ng-container>
+    </div>
+  }
 </main>

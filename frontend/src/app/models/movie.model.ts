@@ -1,4 +1,5 @@
 export interface Movie {
+  movieId: string;
   title: string;
   year?: number | null;
   tagline?: string | null;
