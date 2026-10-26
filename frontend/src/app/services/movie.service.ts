@@ -14,7 +14,8 @@ export class MovieService {
     const search = query.search?.trim();
     if (search) params = params.set('search', search);
     if (query.genre) params = params.set('genre', query.genre);
-    if (query.year != null && Number.isFinite(query.year)) params = params.set('year', query.year);
+    if (query.year) params = params.set('year', query.year);
+
     return this.http.get<MoviePage | Movie[]>(this.endpoint, { params }).pipe(
       map((response) => Array.isArray(response)
         ? { content: response, totalPages: 1, totalElements: response.length, number: query.page, size: query.size }

@@ -1,20 +1,30 @@
+import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
+import { SearchComponent } from "./shared/components/search/search.component";
 import { ZardButtonComponent } from "./shared/components/button";
 import { AuthService } from "./services/auth.service";
 
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, ZardButtonComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+    ZardButtonComponent,
+    SearchComponent,
+  ],
   template: `
-    <div class="dark min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
+    <div class="dark min-h-screen bg-zinc-950 text-zinc-100">
       <header
-        class="sticky top-0 z-20 border-b border-white/10 bg-zinc-950/90 backdrop-blur-xl"
+        class="sticky top-0 z-30 border-b border-white/10 bg-zinc-950/90"
       >
         <div
-          class="mx-auto flex h-16 max-w-7xl items-center gap-8 px-4 sm:px-6 lg:px-8"
+          class="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4 sm:gap-8 sm:px-6 lg:px-8"
         >
+          <!-- Logo -->
           <a
             class="flex shrink-0 items-center gap-2 font-black tracking-[0.16em]"
             routerLink="/movies"
@@ -26,30 +36,40 @@ import { AuthService } from "./services/auth.service";
             >
             <span>NEO<span class="text-rose-500">4</span>FLIX</span>
           </a>
-          <nav class="flex items-center gap-5 text-sm text-zinc-400">
+
+          <!-- Navigation -->
+          <nav class="flex items-center gap-4 text-sm text-zinc-400 sm:gap-5">
             <a
               routerLink="/movies"
               routerLinkActive="text-white"
+              [routerLinkActiveOptions]="{ exact: true }"
               class="transition hover:text-white"
-              >Discover</a
             >
-            <span
-              class="hidden border-l border-white/15 pl-5 text-xs text-zinc-500 sm:inline"
-              >Powered by Neo4j</span
+              Home
+            </a>
+
+            <a
+              routerLink="/browse"
+              routerLinkActive="text-white"
+              class="transition hover:text-white"
             >
+              Browse
+            </a>
           </nav>
 
-          <div
-            class="ml-auto hidden items-center gap-2 text-xs text-zinc-400 sm:flex"
-          >
+          <!-- Search -->
+          <app-search class="ml-auto" />
+
+          <!-- Authentication -->
+          <div class="hidden items-center gap-2 text-xs text-zinc-400 sm:flex">
             @if (!authService.isAuthenticated()) {
-              <button z-button class="mx-1" routerLink="/login">Log-in</button>
+              <button z-button routerLink="/login">Log in</button>
               <button z-button zType="secondary" routerLink="/register">
                 Register
               </button>
             } @else {
               <span class="size-2 rounded-full bg-emerald-400"></span>
-              Loged In
+              <span>Logged in</span>
               <button
                 z-button
                 zType="destructive"
@@ -61,7 +81,9 @@ import { AuthService } from "./services/auth.service";
           </div>
         </div>
       </header>
+
       <router-outlet />
+
       <footer class="border-t border-white/10">
         <div
           class="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-6 text-xs text-zinc-500 sm:px-6 lg:px-8"
@@ -69,15 +91,18 @@ import { AuthService } from "./services/auth.service";
           <a
             class="font-bold tracking-widest text-zinc-300"
             routerLink="/movies"
-            >NEO4FLIX</a
           >
+            NEO4FLIX
+          </a>
           <p>Built for people who love a good story.</p>
-          <span class="ml-auto tracking-[0.18em]">GRAPH-POWERED DISCOVERY</span>
+          <span class="ml-auto tracking-[0.18em]">
+            GRAPH-POWERED DISCOVERY
+          </span>
         </div>
       </footer>
     </div>
   `,
 })
 export class AppComponent {
-  authService = inject(AuthService);
+  readonly authService = inject(AuthService);
 }
