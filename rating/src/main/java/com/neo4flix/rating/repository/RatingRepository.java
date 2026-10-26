@@ -31,7 +31,7 @@ public interface RatingRepository extends Neo4jRepository<Rating, Long> {
                         @Param("rating") double rating);
 
         @Query("""
-                        MATCH (u:User {id: $email})-[r:RATED]->
+                        MATCH (u:User {email: $email})-[r:RATED]->
                               (m:Movie {movieId: $movieId})
                         RETURN m.movieId AS movieId,
                                r.rating AS rating,
@@ -43,7 +43,7 @@ public interface RatingRepository extends Neo4jRepository<Rating, Long> {
                         @Param("movieId") String movieId);
 
         @Query("""
-                        MATCH (u:User {id: $email})-[r:RATED]->(m:Movie)
+                        MATCH (u:User {email: $email})-[r:RATED]->(m:Movie)
                         RETURN m.movieId AS movieId,
                                r.rating AS rating,
                                r.createdAt AS createdAt,
@@ -54,7 +54,7 @@ public interface RatingRepository extends Neo4jRepository<Rating, Long> {
                         @Param("email") String email);
 
         @Query("""
-                        MATCH (u:User {id: $email})-[r:RATED]->
+                        MATCH (u:User {email: $email})-[r:RATED]->
                               (m:Movie {movieId: $movieId})
                         DELETE r
                         RETURN true AS deleted
