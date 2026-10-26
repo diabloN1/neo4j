@@ -22,7 +22,10 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
         @Query(value = """
                         MATCH (m:Movie)
                         WHERE ($search IS NULL OR
-                               toLower(m.title) CONTAINS toLower($search))
+                               toLower(m.title) CONTAINS toLower($search) OR
+                               toString(m.year) CONTAINS toString($search) OR
+                               toString(m.plot) CONTAINS toString($search))
+
                           AND ($year IS NULL OR m.year = $year)
                           AND ($genre IS NULL OR EXISTS {
                               MATCH (m)-[:IN_GENRE]->(g:Genre)

@@ -24,6 +24,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: "browse",
+    loadComponent: () =>
+      import("./pages/search-page/search-page.component").then(
+        (m) => m.SearchComponent,
+      ),
+  },
+  {
     path: "movies/:title",
     loadComponent: () =>
       import("./pages/movie-detail-page/movie-detail-page.component").then(
