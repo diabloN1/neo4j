@@ -21,9 +21,7 @@
     <p class="max-w-lg text-sm leading-6 text-zinc-400">
       {{ error() }}
     </p>
-    <button z-button type="button" (click)="loadMovies()">
-      Try again
-    </button>
+    <button z-button type="button" (click)="loadMovies()">Try again</button>
   </section>
 
   <ng-container *ngIf="!error() || movies().length">
@@ -123,18 +121,7 @@
               [routerLink]="['/movies', movies()[0].title]"
               class="h-12 gap-2 bg-white px-6 text-base font-bold text-black hover:bg-zinc-200"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="21"
-                height="21"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  d="M8 5.14v13.72a.75.75 0 0 0 1.13.65l11-6.86a.75.75 0 0 0 0-1.3l-11-6.86A.75.75 0 0 0 8 5.14Z"
-                />
-              </svg>
+              <span class="material-icons">play_arrow</span>
               View movie
             </a>
 
@@ -144,21 +131,7 @@
               [routerLink]="['/movies', movies()[0].title]"
               class="h-12 gap-2 bg-white/20 px-6 text-base font-bold text-white backdrop-blur-sm hover:bg-white/30 hover:text-white"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 16v-4M12 8h.01" />
-              </svg>
+              <span class="material-icons">info</span>
               More info
             </a>
           </div>
@@ -215,9 +188,7 @@
             Explore movies
           </h2>
 
-          <p class="mt-2 text-sm text-zinc-400">
-            Discover movies by genre.
-          </p>
+          <p class="mt-2 text-sm text-zinc-400">Discover movies by genre.</p>
         </div>
 
         <a
@@ -263,7 +234,8 @@
               [queryParams]="{ genre: category }"
               class="text-sm font-medium text-rose-400 transition-colors hover:text-rose-300"
             >
-              Explore genre →
+              Explore genre
+              <span class="material-icons">arrow_outward</span>
             </a>
           </div>
 
@@ -279,7 +251,7 @@
               "
               (visible)="
                 i === moviesForGenre(category).length - 3 &&
-                loadMoreGenreMovies(category)
+                  loadMoreGenreMovies(category)
               "
             >
               <a [routerLink]="['/movies', movie.title]" class="block">

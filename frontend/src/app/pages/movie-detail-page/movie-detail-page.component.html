@@ -7,7 +7,8 @@
       routerLink="/movies"
       class="mt-30 border border-white/10 bg-black/30 text-white backdrop-blur-md hover:bg-white/10"
     >
-      ← Back to discovery
+      <span class="material-icons">arrow_back</span>
+      Back to discovery
     </a>
   </div>
 
@@ -71,7 +72,6 @@
         >
           <!-- Main information -->
           <div class="max-w-3xl">
-
             <h1
               class="mt-5 text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
             >
@@ -139,18 +139,8 @@
                 class="h-12 gap-3 bg-white px-7 text-base font-bold text-black hover:bg-zinc-200"
                 (click)="playMovie()"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="22"
-                  height="22"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M8 5.14v13.72a.75.75 0 0 0 1.13.65l11-6.86a.75.75 0 0 0 0-1.3l-11-6.86A.75.75 0 0 0 8 5.14Z"
-                  />
-                </svg>
+                <span class="material-icons">play_arrow</span>
+
                 Play
               </button>
 
