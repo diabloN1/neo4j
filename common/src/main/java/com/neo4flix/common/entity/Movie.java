@@ -1,4 +1,4 @@
-package com.neo4flix.movie.entity;
+package com.neo4flix.common.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

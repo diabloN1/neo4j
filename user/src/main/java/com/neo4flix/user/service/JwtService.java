@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.neo4flix.user.entity.User;
+import com.neo4flix.common.entity.User;
 import com.neo4flix.user.exception.UnauthorizedException;
 
 import java.time.Duration;

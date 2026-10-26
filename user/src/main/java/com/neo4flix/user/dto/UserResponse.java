@@ -2,7 +2,7 @@ package com.neo4flix.user.dto;
 
 import java.time.Instant;
 
-import com.neo4flix.user.entity.User;
+import com.neo4flix.common.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,12 +1,12 @@
 package com.neo4flix.movie.repository;
 
-import com.neo4flix.movie.entity.Movie;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
+
+import com.neo4flix.common.entity.Movie;
 
 import java.util.List;
 import java.util.Optional;

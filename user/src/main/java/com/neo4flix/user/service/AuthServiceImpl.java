@@ -7,7 +7,7 @@ import com.neo4flix.user.dto.AuthResult;
 import com.neo4flix.user.dto.LoginRequest;
 import com.neo4flix.user.dto.RegisterRequest;
 import com.neo4flix.user.dto.UserResponse;
-import com.neo4flix.user.entity.User;
+import com.neo4flix.common.entity.User;
 import com.neo4flix.user.exception.ConflictException;
 import com.neo4flix.user.exception.UnauthorizedException;
 import com.neo4flix.user.repository.UserRepository;

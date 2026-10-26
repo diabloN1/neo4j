@@ -1,4 +1,4 @@
-package com.neo4flix.movie.entity;
+package com.neo4flix.common.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,11 +7,11 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 
-@Node("Actor")
+@Node("Director")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Actor {
+public class Director {
 
     @Id
     @GeneratedValue

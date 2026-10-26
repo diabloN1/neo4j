@@ -1,6 +1,6 @@
 package com.neo4flix.user.repository;
 
-import com.neo4flix.user.entity.User;
+import com.neo4flix.common.entity.User;
 
 import java.util.Optional;
 

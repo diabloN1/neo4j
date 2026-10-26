@@ -1,12 +1,12 @@
 package com.neo4flix.movie.service;
 
+import com.neo4flix.common.entity.Actor;
+import com.neo4flix.common.entity.Director;
+import com.neo4flix.common.entity.Genre;
+import com.neo4flix.common.entity.Movie;
 import com.neo4flix.movie.dto.MovieDetails;
 import com.neo4flix.movie.dto.MoviePage;
 import com.neo4flix.movie.dto.MovieSummary;
-import com.neo4flix.movie.entity.Actor;
-import com.neo4flix.movie.entity.Director;
-import com.neo4flix.movie.entity.Genre;
-import com.neo4flix.movie.entity.Movie;
 import com.neo4flix.movie.exception.MovieNotFoundException;
 import com.neo4flix.movie.repository.MovieRepository;
 import org.springframework.data.domain.Page;
