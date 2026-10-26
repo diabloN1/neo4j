@@ -1,0 +1,76 @@
+<div class="rounded-xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h3 class="text-base font-bold text-white">
+        {{ label }}
+      </h3>
+
+      <p class="mt-1 text-sm text-zinc-400">
+        Choose a rating from 0.5 to 5 stars.
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <div
+        class="flex items-center gap-0.5"
+        role="group"
+        [attr.aria-label]="label"
+        (mouseleave)="resetHover()"
+      >
+        <div *ngFor="let star of stars" class="relative size-10">
+          <!-- Visual star -->
+          <span
+            class="material-icons pointer-events-none absolute inset-0 flex items-center justify-center text-[34px] transition-colors"
+            [class.text-amber-400]="displayRating >= star - 0.5"
+            [class.text-zinc-600]="displayRating < star - 0.5"
+            aria-hidden="true"
+          >
+            {{ starIcon(star) }}
+          </span>
+
+          <!-- Left half: half-star rating -->
+          <button
+            type="button"
+            class="absolute inset-y-0 left-0 z-10 w-1/2 cursor-pointer rounded-l-md outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+            [attr.aria-label]="'Rate ' + (star - 0.5) + ' out of 5 stars'"
+            [attr.aria-pressed]="value === star - 0.5"
+            (mouseenter)="hoveredRating = star - 0.5"
+            (focus)="hoveredRating = star - 0.5"
+            (blur)="resetHover()"
+            (click)="setRating(star - 0.5)"
+          ></button>
+
+          <!-- Right half: full-star rating -->
+          <button
+            type="button"
+            class="absolute inset-y-0 right-0 z-10 w-1/2 cursor-pointer rounded-r-md outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+            [attr.aria-label]="'Rate ' + star + ' out of 5 stars'"
+            [attr.aria-pressed]="value === star"
+            (mouseenter)="hoveredRating = star"
+            (focus)="hoveredRating = star"
+            (blur)="resetHover()"
+            (click)="setRating(star)"
+          ></button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between gap-4">
+        <span class="text-sm font-semibold text-amber-400">
+          {{ displayRating > 0 ? displayRating.toFixed(1) : "—" }}
+          <span class="text-zinc-500">/ 5</span>
+        </span>
+
+        <button
+          z-button
+          zType="destructive"
+          *ngIf="value > 0"
+          type="button"
+          class="text-xs text-zinc-400 decoration-zinc-600 underline-offset-4 transition hover:text-white"
+          (click)="setRating(0)"
+        >
+          Clear rating
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
