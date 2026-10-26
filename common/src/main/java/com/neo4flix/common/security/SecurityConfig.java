@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,8 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -41,21 +40,23 @@ public class SecurityConfig {
                                 .csrf(csrf -> csrf.disable())
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers(HttpMethod.GET, "/api/movies", "/api/movies/**").permitAll()
+                                                .requestMatchers(HttpMethod.GET,
+                                                                "/api/movies",
+                                                                "/api/movies/**",
+                                                                "/api/ratings/movies/*/average")
+                                                .permitAll()
                                                 .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                                                 .requestMatchers("/actuator/health").permitAll()
                                                 .anyRequest().authenticated())
                                 .oauth2ResourceServer(oauth -> oauth
-                                                .jwt(jwt -> jwt
-                                                                .jwtAuthenticationConverter(
-                                                                                jwtAuthenticationConverter())))
+                                                .jwt(Customizer.withDefaults()))
                                 .exceptionHandling(ex -> ex
                                                 .authenticationEntryPoint((req, res, authEx) -> {
                                                         res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                                                         res.setContentType("application/json");
                                                         res.getWriter().write(
                                                                         """
-                                                                                        {"code":"UNAUTHORIZED","message":"Token expired or invalid","details":null,"timestamp":"%s"}
+                                                                                        {"code":"UNAUTHORIZED","message":"Token expired or invalid:","details":null,"timestamp":"%s"}
                                                                                         """
                                                                                         .formatted(Instant.now()));
                                                 })
@@ -82,19 +83,6 @@ public class SecurityConfig {
                                 .withSecretKey(key)
                                 .macAlgorithm(MacAlgorithm.HS384)
                                 .build();
-        }
-
-        @Bean
-        JwtAuthenticationConverter jwtAuthenticationConverter() {
-                JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
-
-                authoritiesConverter.setAuthoritiesClaimName("role");
-                authoritiesConverter.setAuthorityPrefix("ROLE_");
-
-                JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-                converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
-
-                return converter;
         }
 
         @Bean
