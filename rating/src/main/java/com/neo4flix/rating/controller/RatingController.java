@@ -76,7 +76,7 @@ public class RatingController {
         ratingService.deleteRating(userId, movieId);
     }
 
-    @GetMapping("/movies/{movieId}/summary")
+    @GetMapping("/movies/{movieId}/average")
     public RatingAverageResponse getMovieRatingAverage(
             @PathVariable String movieId) {
 
