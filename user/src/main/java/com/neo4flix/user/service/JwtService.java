@@ -33,7 +33,7 @@ public class JwtService {
 
     public String generateAccessToken(User user) {
         return Jwts.builder()
-                .subject(user.getId().toString())
+                .subject(user.getEmail())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
                 .signWith(getSigningKey(), Jwts.SIG.HS384)

@@ -22,3 +22,7 @@ management:
     health:
       probes:
         enabled: true
+logging:
+  level:
+    org.springframework.data.neo4j: DEBUG
+    org.neo4j.driver: DEBUG

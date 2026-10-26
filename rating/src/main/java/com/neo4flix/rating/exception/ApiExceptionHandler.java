@@ -12,7 +12,7 @@ public class ApiExceptionHandler {
     public ProblemDetail handleRatingNotFound(RatingNotFoundException exception) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND, exception.getMessage());
-        detail.setTitle("Movie not found");
+        detail.setTitle("Rating not found");
         return detail;
     }
 

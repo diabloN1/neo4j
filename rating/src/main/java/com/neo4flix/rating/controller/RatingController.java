@@ -29,18 +29,18 @@ public class RatingController {
             @Valid @RequestBody RatingRequest request,
             @AuthenticationPrincipal Jwt jwt) {
 
-        String userId = jwt.getSubject();
+        String email = jwt.getSubject();
 
-        return ratingService.rateMovie(userId, movieId, request.rating());
+        return ratingService.rateMovie(email, movieId, request.rating());
     }
 
     @GetMapping("/me")
     public List<RatingResponse> getMyRatings(
             @AuthenticationPrincipal Jwt jwt) {
 
-        String userId = jwt.getSubject();
+        String email = jwt.getSubject();
 
-        return ratingService.getMyRatings(userId);
+        return ratingService.getMyRatings(email);
     }
 
     @GetMapping("/{movieId}")
@@ -48,21 +48,9 @@ public class RatingController {
             @PathVariable String movieId,
             @AuthenticationPrincipal Jwt jwt) {
 
-        String userId = jwt.getSubject();
+        String email = jwt.getSubject();
 
-        return ratingService.getMyRating(userId, movieId);
-    }
-
-    @PutMapping("/{movieId}")
-    public RatingResponse updateRating(
-            @PathVariable String movieId,
-            @Valid @RequestBody RatingRequest request,
-            @AuthenticationPrincipal Jwt jwt) {
-
-        String userId = jwt.getSubject();
-
-        return ratingService.updateRating(
-                userId, movieId, request.rating());
+        return ratingService.getMyRating(email, movieId);
     }
 
     @DeleteMapping("/{movieId}")
@@ -71,9 +59,9 @@ public class RatingController {
             @PathVariable String movieId,
             @AuthenticationPrincipal Jwt jwt) {
 
-        String userId = jwt.getSubject();
+        String email = jwt.getSubject();
 
-        ratingService.deleteRating(userId, movieId);
+        ratingService.deleteRating(email, movieId);
     }
 
     @GetMapping("/movies/{movieId}/average")
