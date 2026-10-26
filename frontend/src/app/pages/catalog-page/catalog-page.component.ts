@@ -1,143 +1,270 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnInit, inject, signal } from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  signal,
+} from "@angular/core";
 import { RouterLink } from "@angular/router";
-import { Subject, catchError, debounceTime, finalize, of } from "rxjs";
+import {
+  catchError,
+  finalize,
+  of,
+} from "rxjs";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { Movie, MovieQuery } from "../../models/movie.model";
 import { MovieService } from "../../services/movie.service";
 
+import { ObserveVisibleDirective } from "@/shared/directives/observe-visible.directive";
 import { ZardBadgeComponent } from "@/shared/components/badge/badge.component";
 import { ZardButtonComponent } from "@/shared/components/button/button.component";
 import { ZardCardImports } from "@/shared/components/card/card.imports";
-import { ZardInputComponent } from "@/shared/components/input/input.component";
 
 @Component({
   selector: "app-catalog-page",
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     RouterLink,
+    ObserveVisibleDirective,
     ZardBadgeComponent,
     ZardButtonComponent,
     ZardCardImports,
-    ZardInputComponent,
   ],
-  templateUrl: "catalog-page.component.html",
+  templateUrl: "./catalog-page.component.html",
 })
 export class CatalogPageComponent implements OnInit {
   private readonly movieService = inject(MovieService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly filterChanges = new Subject<void>();
 
+  /** First page of movies, used for the featured hero and empty state. */
   readonly movies = signal<Movie[]>([]);
+
   readonly genres = signal<string[]>([]);
+
+  /** Movies loaded for each individual genre. */
+  readonly genreMovies = signal<Record<string, Movie[]>>({});
+
+  /** Current zero-based page loaded for each genre. */
+  readonly genrePages = signal<Record<string, number>>({});
+
+  /** Whether additional pages exist for each genre. */
+  readonly genreHasMore = signal<Record<string, boolean>>({});
+
+  /** Loading state for each genre, independent of other rows. */
+  readonly genreLoadingByGenre = signal<Record<string, boolean>>({});
+
   readonly loading = signal(false);
   readonly error = signal("");
-  readonly totalPages = signal(1);
-  readonly totalElements = signal(0);
-  readonly page = signal(0);
   readonly brokenPosters = signal(new Set<string>());
 
+  /** Page size for genre-specific infinite scrolling. */
   readonly size = 20;
-  readonly currentYear = new Date().getFullYear();
-
-  search = "";
-  genre = "";
-  year: number | null = null;
 
   ngOnInit(): void {
+    this.loadGenres();
+    this.loadMovies();
+  }
+
+  /**
+   * Load genres, then load the first page of movies for each genre.
+   */
+  private loadGenres(): void {
     this.movieService
       .getGenres()
       .pipe(
-        catchError(() => of([])),
+        catchError((error) => {
+          console.error("Failed to load genres", error);
+          return of([] as string[]);
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((items) => this.genres.set(items ?? []));
+      .subscribe((items) => {
+        const categories = (items ?? []).filter(
+          (item) => item && item !== "(no genres listed)",
+        );
 
-    this.filterChanges
-      .pipe(
-        debounceTime(300),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => {
-        this.page.set(0);
-        this.loadMovies();
+        this.genres.set(categories);
+
+        for (const category of categories) {
+          this.loadGenrePage(category, 0);
+        }
       });
-
-    this.loadMovies();
   }
 
-  onFilterInput(): void {
-    this.filterChanges.next();
-  }
-
-  applyFilters(): void {
-    this.page.set(0);
-    this.loadMovies();
-  }
-
-  clearFilters(): void {
-    this.search = "";
-    this.genre = "";
-    this.year = null;
-    this.applyFilters();
-  }
-
-  go(nextPage: number): void {
-    if (nextPage < 0 || nextPage >= this.totalPages()) {
+  /**
+   * Load one page for one genre.
+   *
+   * Page zero replaces the genre's current list.
+   * Later pages append unique movies to that list.
+   */
+  private loadGenrePage(genre: string, page: number): void {
+    if (this.isGenreLoading(genre)) {
       return;
     }
 
-    this.page.set(nextPage);
-    this.loadMovies();
+    if (page > 0 && !this.hasMoreGenreMovies(genre)) {
+      return;
+    }
 
-    document.getElementById("catalog")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }
-
-  markPosterBroken(title: string): void {
-    this.brokenPosters.update((current) => new Set(current).add(title));
-  }
-
-  loadMovies(): void {
-    this.loading.set(true);
-    this.error.set("");
+    this.setGenreLoading(genre, true);
 
     const query: MovieQuery = {
-      search: this.search.trim(),
-      genre: this.genre,
-      year: this.year,
-      page: this.page(),
+      search: "",
+      genre,
+      year: null,
+      page,
       size: this.size,
     };
 
     this.movieService
       .getMovies(query)
       .pipe(
+        catchError((error) => {
+          console.error(`Failed to load ${genre} movies`, error);
+          return of(null);
+        }),
+        finalize(() => this.setGenreLoading(genre, false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((response) => {
+        if (!response) {
+          return;
+        }
+
+        const received: Movie[] =
+          response.content ??
+          response.movies ??
+          response.items ??
+          [];
+
+        this.genreMovies.update((current) => {
+          const existing = page === 0 ? [] : current[genre] ?? [];
+
+          const seen = new Set(
+            existing.map((movie) => movie.tmdbId ?? movie.title),
+          );
+
+          const uniqueReceived = received.filter((movie) => {
+            const key = movie.tmdbId ?? movie.title;
+
+            if (seen.has(key)) {
+              return false;
+            }
+
+            seen.add(key);
+            return true;
+          });
+
+          return {
+            ...current,
+            [genre]: [...existing, ...uniqueReceived],
+          };
+        });
+
+        this.genrePages.update((current) => ({
+          ...current,
+          [genre]: page,
+        }));
+
+        const hasMore =
+          response.totalPages != null
+            ? page + 1 < response.totalPages
+            : received.length >= this.size;
+
+        this.genreHasMore.update((current) => ({
+          ...current,
+          [genre]: hasMore,
+        }));
+      });
+  }
+
+  /**
+   * Called when a movie near the end of a genre row becomes visible.
+   */
+  loadMoreGenreMovies(genre: string): void {
+    if (this.isGenreLoading(genre) || !this.hasMoreGenreMovies(genre)) {
+      return;
+    }
+
+    const nextPage = (this.genrePages()[genre] ?? 0) + 1;
+    this.loadGenrePage(genre, nextPage);
+  }
+
+  private setGenreLoading(genre: string, loading: boolean): void {
+    this.genreLoadingByGenre.update((current) => ({
+      ...current,
+      [genre]: loading,
+    }));
+  }
+
+  moviesForGenre(genre: string): Movie[] {
+    return this.genreMovies()[genre] ?? [];
+  }
+
+  hasMoreGenreMovies(genre: string): boolean {
+    return this.genreHasMore()[genre] ?? false;
+  }
+
+  isGenreLoading(genre: string): boolean {
+    return this.genreLoadingByGenre()[genre] ?? false;
+  }
+
+  /**
+   * Load the initial movie list used by the featured hero.
+   * Search and pagination are handled by the browse page.
+   */
+  loadMovies(): void {
+    this.loading.set(true);
+    this.error.set("");
+
+    const query: MovieQuery = {
+      search: "",
+      genre: "",
+      year: null,
+      page: 0,
+      size: this.size,
+    };
+
+    this.movieService
+      .getMovies(query)
+      .pipe(
+        catchError((error) => {
+          this.error.set(
+            error.status === 0
+              ? "Cannot reach the Movie API. Check that the backend is running and CORS is configured."
+              : `Movie API returned an error${
+                  error.status ? ` (${error.status})` : ""
+                }. Check the backend logs.`,
+          );
+
+          return of(null);
+        }),
         finalize(() => this.loading.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe({
-        next: (response) => {
-          const list =
-            response.content ?? response.movies ?? response.items ?? [];
+      .subscribe((response) => {
+        if (!response) {
+          return;
+        }
 
-          this.movies.set(list);
-          this.totalPages.set(Math.max(1, response.totalPages ?? 1));
-          this.totalElements.set(response.totalElements ?? list.length);
-        },
-        error: (error) => {
-          this.error.set(
-            error.status === 0
-              ? "Cannot reach the Movie API at http://localhost:8081. Check that the backend is running and allows requests from http://localhost:4200 (CORS)."
-              : `Movie API returned an error${error.status ? ` (${error.status})` : ""}. Check the backend logs.`,
-          );
-        },
+        const list: Movie[] =
+          response.content ??
+          response.movies ??
+          response.items ??
+          [];
+
+        this.movies.set(list);
       });
+  }
+
+  markPosterBroken(title: string): void {
+    this.brokenPosters.update((current) => {
+      const updated = new Set(current);
+      updated.add(title);
+      return updated;
+    });
   }
 }

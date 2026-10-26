@@ -1,301 +1,400 @@
-    <div class="min-h-screen bg-background text-foreground">
-      <!-- Hero -->
-      <section class="border-b border-border">
-        <div class="mx-auto grid max-w-7xl items-center gap-8 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[1fr_auto] lg:px-8">
-          <div class="max-w-3xl">
-            <z-badge zType="outline">YOUR NEXT FAVORITE IS HERE</z-badge>
+<div>
+  <!-- Loading -->
+  <section
+    *ngIf="loading() && !movies().length"
+    class="flex min-h-screen flex-col items-center justify-center gap-5 bg-[#141414]"
+    aria-live="polite"
+  >
+    <span
+      class="size-12 animate-spin rounded-full border-2 border-zinc-700 border-t-rose-600"
+    ></span>
+    <p class="text-sm text-zinc-400">Finding your next favorite…</p>
+  </section>
 
-            <h1 class="mt-6 text-4xl font-bold tracking-tight sm:text-6xl">
-              Stories worth
-              <span class="block text-primary">staying in for.</span>
-            </h1>
+  <!-- Initial error -->
+  <section
+    *ngIf="error() && !loading() && !movies().length"
+    class="flex min-h-screen flex-col items-center justify-center gap-4 px-5 text-center"
+  >
+    <span class="text-5xl text-rose-600">N</span>
+    <h2 class="text-2xl font-bold">Something went wrong</h2>
+    <p class="max-w-lg text-sm leading-6 text-zinc-400">
+      {{ error() }}
+    </p>
+    <button z-button type="button" (click)="loadMovies()">
+      Try again
+    </button>
+  </section>
 
-            <p class="mt-5 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-              Explore a universe of cinema. Find timeless classics, hidden gems,
-              and stories you didn't know you needed.
-            </p>
+  <ng-container *ngIf="!error() || movies().length">
+    <!-- Featured movie hero -->
+    <section
+      *ngIf="movies().length && !loading()"
+      class="relative isolate min-h-[680px] overflow-hidden sm:min-h-[740px] lg:min-h-[800px]"
+    >
+      <!-- Background image -->
+      <div class="absolute inset-0 -z-20">
+        <img
+          *ngIf="movies()[0].poster && !brokenPosters().has(movies()[0].title)"
+          [src]="movies()[0].poster"
+          alt=""
+          aria-hidden="true"
+          class="h-full w-full scale-110 object-cover object-center opacity-50 blur-[2px]"
+          (error)="markPosterBroken(movies()[0].title)"
+        />
 
-            <button
-              z-button
-              zType="outline"
-              class="mt-7"
-              routerLink="/movies"
-              fragment="catalog"
+        <div
+          *ngIf="!movies()[0].poster || brokenPosters().has(movies()[0].title)"
+          class="h-full w-full bg-gradient-to-br from-rose-950 via-zinc-900 to-black"
+        ></div>
+      </div>
+
+      <!-- Cinematic gradients -->
+      <div
+        class="absolute inset-0 -z-10 bg-gradient-to-r from-[#141414] via-[#141414]/75 to-black/20"
+      ></div>
+      <div
+        class="absolute inset-0 -z-10 bg-gradient-to-t from-[#141414] via-transparent to-black/60"
+      ></div>
+      <div
+        class="absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-t from-[#141414] to-transparent"
+      ></div>
+
+      <!-- Featured content -->
+      <div
+        class="mx-auto flex min-h-[680px] max-w-[1800px] items-end px-5 pb-24 sm:min-h-[640px] sm:px-10 sm:pb-28 lg:px-14"
+      >
+        <div class="max-w-3xl">
+          <h1
+            class="max-w-3xl text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
+          >
+            {{ movies()[0].title }}
+          </h1>
+
+          <!-- Featured metadata -->
+          <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+            <span
+              *ngIf="movies()[0].imdbRating != null"
+              class="font-bold text-green-400"
             >
-              Explore the collection
-              <span aria-hidden="true">↘</span>
-            </button>
+              ★ {{ movies()[0].imdbRating }} IMDb
+            </span>
+
+            <span *ngIf="movies()[0].year" class="text-zinc-300">
+              {{ movies()[0].year }}
+            </span>
+
+            <span
+              *ngIf="movies()[0].runtime"
+              class="border border-white/30 px-2 py-0.5 text-zinc-300"
+            >
+              {{ movies()[0].runtime }} min
+            </span>
           </div>
 
-          <div class="hidden lg:flex lg:justify-end" aria-hidden="true">
-            <div class="flex size-44 items-center justify-center rounded-3xl border border-border bg-card shadow-sm">
-              <span class="text-8xl font-black tracking-tighter text-primary">N</span>
+          <!-- Featured genres -->
+          <div
+            *ngIf="movies()[0].genres?.length"
+            class="mt-4 flex flex-wrap gap-2"
+          >
+            <z-badge
+              *ngFor="let genre of (movies()[0].genres || []).slice(0, 3)"
+              zType="secondary"
+              class="border-white/10 bg-white/10 text-zinc-100"
+            >
+              {{ genre }}
+            </z-badge>
+          </div>
+
+          <!-- Featured plot -->
+          <p
+            class="mt-5 max-w-2xl text-sm leading-7 text-zinc-300 sm:text-base sm:leading-8"
+          >
+            {{
+              movies()[0].plot ||
+                "Discover a new story and find your next favorite movie."
+            }}
+          </p>
+
+          <!-- Featured actions -->
+          <div class="mt-7 flex flex-wrap gap-3">
+            <a
+              z-button
+              [routerLink]="['/movies', movies()[0].title]"
+              class="h-12 gap-2 bg-white px-6 text-base font-bold text-black hover:bg-zinc-200"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="21"
+                height="21"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8 5.14v13.72a.75.75 0 0 0 1.13.65l11-6.86a.75.75 0 0 0 0-1.3l-11-6.86A.75.75 0 0 0 8 5.14Z"
+                />
+              </svg>
+              View movie
+            </a>
+
+            <a
+              z-button
+              zType="secondary"
+              [routerLink]="['/movies', movies()[0].title]"
+              class="h-12 gap-2 bg-white/20 px-6 text-base font-bold text-white backdrop-blur-sm hover:bg-white/30 hover:text-white"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4M12 8h.01" />
+              </svg>
+              More info
+            </a>
+          </div>
+        </div>
+
+        <!-- Featured poster -->
+        <div class="ml-auto hidden w-56 shrink-0 lg:block xl:w-64">
+          <div
+            class="overflow-hidden rounded-xl border border-white/10 shadow-2xl shadow-black/60"
+          >
+            <img
+              *ngIf="
+                movies()[0].poster && !brokenPosters().has(movies()[0].title)
+              "
+              [src]="movies()[0].poster"
+              [alt]="movies()[0].title + ' poster'"
+              class="aspect-[2/3] w-full object-cover"
+              (error)="markPosterBroken(movies()[0].title)"
+            />
+
+            <div
+              *ngIf="
+                !movies()[0].poster || brokenPosters().has(movies()[0].title)
+              "
+              class="flex aspect-[2/3] flex-col items-center justify-center bg-gradient-to-br from-rose-950 to-zinc-900"
+            >
+              <span class="text-7xl font-black text-rose-600">N</span>
+              <span class="mt-3 text-xs tracking-[0.25em] text-zinc-400">
+                NEO4FLIX
+              </span>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Catalog -->
-      <main
-        id="catalog"
-        class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8"
+    <!-- Catalog -->
+    <main
+      id="catalog"
+      class="relative mx-auto max-w-[1800px] scroll-mt-8 px-5 pb-20 sm:px-10 lg:px-14"
+    >
+      <!-- Catalog heading -->
+      <section
+        class="my-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
       >
-        <div class="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p class="text-sm font-medium text-primary">THE COLLECTION</p>
+        <div>
+          <p
+            class="text-xs font-bold uppercase tracking-[0.25em] text-rose-500"
+          >
+            The collection
+          </p>
 
-            <h2 class="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
-              Find your next watch.
-            </h2>
+          <h2 class="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+            Explore movies
+          </h2>
 
-            <p class="mt-2 text-sm text-muted-foreground">
-              Search, filter, and explore your movie universe.
-            </p>
-          </div>
-
-          <z-badge zType="secondary" class="w-fit">
-            {{ totalElements() }} titles
-          </z-badge>
+          <p class="mt-2 text-sm text-zinc-400">
+            Discover movies by genre.
+          </p>
         </div>
 
-        <!-- Filters -->
-        <form
-          class="mb-8 grid gap-3 rounded-xl border border-border bg-card p-4 sm:p-5 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_190px_130px_auto]"
-          (submit)="$event.preventDefault(); applyFilters()"
+        <a
+          z-button
+          zType="outline"
+          routerLink="/browse"
+          class="border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
         >
-          <div class="relative">
-            <span
-              class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            >
-              ⌕
-            </span>
+          Browse all movies
+        </a>
+      </section>
 
-            <input
-              z-input
-              class="w-full pl-9"
-              type="search"
-              name="search"
-              placeholder="Search movies by title..."
-              aria-label="Search movies"
-              [(ngModel)]="search"
-              (ngModelChange)="onFilterInput()"
-            />
+      <!-- Error while movies are already displayed -->
+      <section
+        *ngIf="error() && movies().length"
+        class="mb-8 rounded-xl border border-rose-500/20 bg-rose-500/5 p-5"
+        role="alert"
+      >
+        <p class="text-sm text-rose-300">{{ error() }}</p>
+
+        <button
+          z-button
+          type="button"
+          zType="outline"
+          class="mt-3 border-white/10 text-white hover:bg-white/10 hover:text-white"
+          (click)="loadMovies()"
+        >
+          Try again
+        </button>
+      </section>
+
+      <!-- Movies grouped by genre -->
+      <section *ngFor="let category of genres()" class="mb-10">
+        <ng-container *ngIf="moviesForGenre(category).length > 0">
+          <!-- Genre heading -->
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-xl font-bold text-white sm:text-2xl">
+              {{ category }}
+            </h2>
+
+            <a
+              [routerLink]="['/browse']"
+              [queryParams]="{ genre: category }"
+              class="text-sm font-medium text-rose-400 transition-colors hover:text-rose-300"
+            >
+              Explore genre →
+            </a>
           </div>
 
-          <select
-            name="genre"
-            class="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label="Filter by genre"
-            [(ngModel)]="genre"
-            (ngModelChange)="onFilterInput()"
-          >
-            <option value="">All genres</option>
-            <option *ngFor="let item of genres()" [value]="item">
-              {{ item }}
-            </option>
-          </select>
-
-          <input
-            z-input
-            class="w-full"
-            name="year"
-            type="number"
-            min="1888"
-            [max]="currentYear"
-            placeholder="Year"
-            aria-label="Filter by year"
-            [(ngModel)]="year"
-            (ngModelChange)="onFilterInput()"
-          />
-
-          <button
-            type="button"
-            z-button
-            zType="outline"
-            (click)="clearFilters()"
-            [zDisabled]="!search && !genre && year == null"
-          >
-            Clear filters
-          </button>
-        </form>
-
-        <!-- Loading -->
-        <section
-          *ngIf="loading()"
-          class="flex min-h-64 flex-col items-center justify-center gap-4 text-center"
-          aria-live="polite"
-        >
-          <span
-            class="size-8 animate-spin rounded-full border-2 border-muted border-t-primary"
-            aria-hidden="true"
-          ></span>
-
-          <p class="text-sm text-muted-foreground">
-            Finding your next favorite…
-          </p>
-        </section>
-
-        <!-- Error -->
-        <z-card
-          *ngIf="error() && !loading()"
-          class="flex min-h-64 flex-col items-center justify-center gap-3 p-6 text-center"
-        >
-          <h3 class="text-lg font-semibold">Couldn't load the collection</h3>
-
-          <p class="max-w-lg text-sm text-muted-foreground">
-            {{ error() }}
-          </p>
-
-          <button type="button" z-button (click)="loadMovies()">
-            Try again
-          </button>
-        </z-card>
-
-        <!-- Movies -->
-        <section
-          *ngIf="!loading() && !error() && movies().length"
-          class="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:grid-cols-5"
-          aria-label="Movie collection"
-        >
-          <z-card
-            *ngFor="let movie of movies(); let i = index"
-            class="group min-w-0 overflow-hidden p-0 transition-shadow hover:shadow-lg"
-          >
-            <a
-              class="relative block aspect-[2/2.85] overflow-hidden bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-              [routerLink]="['/movies', movie.title]"
-              [attr.aria-label]="'View details for ' + movie.title"
+          <!-- Horizontal movie row -->
+          <div class="flex gap-4 overflow-x-auto pb-4">
+            <article
+              *ngFor="let movie of moviesForGenre(category); let i = index"
+              class="group w-[155px] flex-none sm:w-[195px] lg:w-[220px]"
+              [appObserveVisible]="
+                i === moviesForGenre(category).length - 3 &&
+                hasMoreGenreMovies(category) &&
+                !isGenreLoading(category)
+              "
+              (visible)="
+                i === moviesForGenre(category).length - 3 &&
+                loadMoreGenreMovies(category)
+              "
             >
-              <img
-                *ngIf="movie.poster && !brokenPosters().has(movie.title)"
-                [src]="movie.poster"
-                [alt]="movie.title + ' poster'"
-                loading="lazy"
-                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                (error)="markPosterBroken(movie.title)"
-              />
+              <a [routerLink]="['/movies', movie.title]" class="block">
+                <!-- Poster -->
+                <div
+                  class="relative aspect-[2/3] overflow-hidden rounded-lg bg-neutral-900"
+                >
+                  <img
+                    *ngIf="movie.poster && !brokenPosters().has(movie.title)"
+                    [src]="movie.poster"
+                    [alt]="movie.title"
+                    loading="lazy"
+                    (error)="markPosterBroken(movie.title)"
+                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
 
-              <div
-                *ngIf="!movie.poster || brokenPosters().has(movie.title)"
-                class="flex h-full flex-col items-center justify-center gap-2 bg-muted text-muted-foreground"
-              >
-                <span class="text-5xl font-black text-primary">N</span>
-                <span class="text-xs font-semibold tracking-widest">
-                  NEO4FLIX
-                </span>
-              </div>
+                  <div
+                    *ngIf="!movie.poster || brokenPosters().has(movie.title)"
+                    class="flex h-full items-center justify-center p-4 text-center text-neutral-500"
+                  >
+                    {{ movie.title }}
+                  </div>
 
-              <span
-                class="absolute left-2 top-2 rounded-md bg-background/90 px-2 py-1 text-xs font-medium text-foreground"
-              >
-                {{ page() * size + i + 1 }}
-              </span>
+                  <!-- Hover play button -->
+                  <div
+                    class="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/40"
+                  >
+                    <span
+                      class="flex h-12 w-12 items-center justify-center rounded-full bg-white text-black opacity-0 transition-opacity group-hover:opacity-100"
+                    >
+                      <span class="material-icons">play_arrow</span>
+                    </span>
+                  </div>
 
-              <z-badge
-                *ngIf="movie.imdbRating != null"
-                class="absolute right-2 top-2 border-0 bg-background/90 text-foreground"
-              >
-                ★ {{ movie.imdbRating }}
-              </z-badge>
+                  <!-- IMDb rating -->
+                  <div
+                    *ngIf="movie.imdbRating != null"
+                    class="absolute left-2 top-2 rounded bg-black/80 px-2 py-1 text-xs font-semibold text-yellow-400"
+                  >
+                    ★ {{ movie.imdbRating }}
+                  </div>
+                </div>
 
-              <div
-                class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pb-3 pt-10 text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100"
-              >
-                View details ↗
-              </div>
-            </a>
-
-            <div class="space-y-2 p-3">
-              <div class="flex items-start justify-between gap-2">
+                <!-- Movie details -->
                 <h3
-                  class="min-w-0 truncate text-sm font-semibold"
-                  [title]="movie.title"
+                  class="mt-3 truncate font-semibold text-white transition-colors group-hover:text-rose-400"
                 >
                   {{ movie.title }}
                 </h3>
 
-                <span
-                  *ngIf="movie.year"
-                  class="shrink-0 text-xs text-muted-foreground"
-                >
+                <p class="mt-1 text-sm text-neutral-400">
                   {{ movie.year }}
-                </span>
-              </div>
-
-              <p class="line-clamp-2 min-h-10 text-xs leading-5 text-muted-foreground">
-                {{ movie.plot || "A story waiting to be discovered." }}
-              </p>
-
-              <div class="flex min-h-6 flex-wrap gap-1.5">
-                <z-badge
-                  *ngFor="let item of (movie.genres || []).slice(0, 2)"
-                  zType="secondary"
-                >
-                  {{ item }}
-                </z-badge>
-              </div>
-            </div>
-          </z-card>
-        </section>
-
-        <!-- Empty state -->
-        <z-card
-          *ngIf="!loading() && !error() && !movies().length"
-          class="flex min-h-64 flex-col items-center justify-center gap-3 p-6 text-center"
-        >
-          <h3 class="text-lg font-semibold">No movies found</h3>
-
-          <p class="text-sm text-muted-foreground">
-            Try another title, genre, or year.
-          </p>
-
-          <button
-            type="button"
-            z-button
-            zType="outline"
-            (click)="clearFilters()"
-          >
-            Clear filters
-          </button>
-        </z-card>
-
-        <!-- Pagination -->
-        <div
-          *ngIf="!loading() && totalPages() > 1"
-          class="mt-8 flex items-center justify-between gap-4 border-t border-border pt-5"
-        >
-          <p class="text-sm text-muted-foreground">
-            Page
-            <span class="font-medium text-foreground">{{ page() + 1 }}</span>
-            of {{ totalPages() }}
-          </p>
-
-          <div class="flex gap-2">
-            <button
-              type="button"
-              z-button
-              zType="outline"
-              zSize="sm"
-              (click)="go(page() - 1)"
-              [zDisabled]="page() === 0"
-              aria-label="Previous page"
-            >
-              ← Previous
-            </button>
-
-            <button
-              type="button"
-              z-button
-              zType="outline"
-              zSize="sm"
-              (click)="go(page() + 1)"
-              [zDisabled]="page() + 1 >= totalPages()"
-              aria-label="Next page"
-            >
-              Next →
-            </button>
+                </p>
+              </a>
+            </article>
           </div>
-        </div>
-      </main>
+
+          <!-- Loading indicator for this genre only -->
+          <div
+            *ngIf="isGenreLoading(category)"
+            class="flex items-center gap-3 py-3 text-sm text-zinc-400"
+            aria-live="polite"
+          >
+            <span
+              class="size-5 animate-spin rounded-full border-2 border-zinc-700 border-t-rose-600"
+            ></span>
+            Loading more {{ category }} movies...
+          </div>
+
+          <!-- End of genre -->
+          <p
+            *ngIf="
+              !isGenreLoading(category) &&
+              !hasMoreGenreMovies(category) &&
+              moviesForGenre(category).length > 0
+            "
+            class="mt-2 text-xs text-zinc-500"
+          >
+            You've reached the end of {{ category }}.
+          </p>
+        </ng-container>
+      </section>
+
+      <!-- Empty state -->
+      <section
+        *ngIf="!loading() && !error() && !movies().length"
+        class="flex min-h-72 flex-col items-center justify-center rounded-xl border border-white/10 bg-[#1c1c1c] px-5 text-center"
+      >
+        <span class="text-5xl font-black text-rose-600">N</span>
+
+        <h3 class="mt-5 text-xl font-bold">No movies found</h3>
+
+        <p class="mt-2 max-w-md text-sm leading-6 text-zinc-400">
+          There are no movies to display right now. Browse the collection to
+          discover available titles.
+        </p>
+
+        <a
+          z-button
+          routerLink="/browse"
+          class="mt-5 bg-white text-black hover:bg-zinc-200"
+        >
+          Browse movies
+        </a>
+      </section>
+    </main>
+  </ng-container>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 px-5 py-8 sm:px-10 lg:px-14">
+    <div
+      class="mx-auto flex max-w-[1800px] flex-col gap-3 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <span class="font-black tracking-[0.2em] text-rose-600">NEO4FLIX</span>
+      <p>Discover your next favorite movie.</p>
     </div>
+  </footer>
+</div>
