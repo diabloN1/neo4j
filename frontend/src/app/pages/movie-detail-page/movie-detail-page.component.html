@@ -148,6 +148,10 @@
                 Playback unavailable: no valid TMDB ID.
               </p>
             </div>
+            <!-- User rating -->
+            <div class="mt-8 max-w-xl">
+              <app-star-rating [(value)]="userRating" label="Your rating" />
+            </div>
           </div>
 
           <!-- Poster card -->
