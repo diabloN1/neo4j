@@ -85,6 +85,6 @@ public interface RatingRepository extends Neo4jRepository<User, Long> {
                                coalesce(avg(r.rating), 0.0) AS averageRating,
                                count(r) AS ratingCount
                         """)
-        Optional<RatingAverageResponse> findRatingSummary(
+        Optional<RatingAverageResponse> findRatingAverage(
                         @Param("movieId") String movieId);
 }

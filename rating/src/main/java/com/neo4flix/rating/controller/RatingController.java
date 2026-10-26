@@ -77,9 +77,9 @@ public class RatingController {
     }
 
     @GetMapping("/movies/{movieId}/summary")
-    public RatingAverageResponse getMovieRatingSummary(
+    public RatingAverageResponse getMovieRatingAverage(
             @PathVariable String movieId) {
 
-        return ratingService.getMovieRatingSummary(movieId);
+        return ratingService.getMovieRatingAverage(movieId);
     }
 }

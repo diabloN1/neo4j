@@ -56,8 +56,8 @@ public class RatingService {
                 ratingRepository.deleteRating(userId, movieId);
         }
 
-        public RatingAverageResponse getMovieRatingSummary(String movieId) {
-                return ratingRepository.findRatingSummary(movieId)
+        public RatingAverageResponse getMovieRatingAverage(String movieId) {
+                return ratingRepository.findRatingAverage(movieId)
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "Movie not found: " + movieId));
         }
