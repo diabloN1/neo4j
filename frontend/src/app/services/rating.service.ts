@@ -24,7 +24,7 @@ export interface RatingAverageResponse {
 })
 export class RatingService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = "http://localhost:8083/api/ratings";
+  private readonly apiUrl = "/api/ratings";
 
   rateMovie(movieId: string, rating: number): Observable<RatingResponse> {
     return this.http.post<RatingResponse>(
@@ -48,7 +48,7 @@ export class RatingService {
       `${this.apiUrl}/movies/${encodeURIComponent(movieId)}/average`,
     );
   }
-  
+
   deleteRating(movieId: string): Observable<void> {
     return this.http.delete<void>(
       `${this.apiUrl}/${encodeURIComponent(movieId)}`,

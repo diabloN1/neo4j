@@ -15,16 +15,10 @@
             "outputPath": "dist/neo4flix-frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
-            "assets": [
-              "public"
-            ],
-            "styles": [
-              "src/styles.css"
-            ]
+            "assets": ["public"],
+            "styles": ["src/styles.css"]
           },
           "configurations": {
             "production": {
@@ -41,10 +35,12 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "neo4flix-frontend:build:production"
+              "buildTarget": "neo4flix-frontend:build:production",
+              "proxyConfig": "proxy.conf.json"
             },
             "development": {
-              "buildTarget": "neo4flix-frontend:build:development"
+              "buildTarget": "neo4flix-frontend:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

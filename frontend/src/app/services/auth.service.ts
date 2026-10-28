@@ -1,10 +1,9 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
-
+import { Injectable, inject } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Observable, tap } from "rxjs";
 
 export interface RegisterRequest {
-  name: string
+  name: string;
   email: string;
   password: string;
 }
@@ -27,13 +26,13 @@ export interface AuthResponse {
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
 
-  private readonly apiUrl = 'http://localhost:8082/api/auth';
-  private readonly tokenKey = 'neo4flix.token';
+  private readonly apiUrl = "/api/auth";
+  private readonly tokenKey = "neo4flix.token";
 
   login(credentials: AuthRequest): Observable<AuthResponse> {
     return this.http
