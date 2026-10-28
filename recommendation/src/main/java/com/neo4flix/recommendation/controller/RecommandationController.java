@@ -1,0 +1,34 @@
+package com.neo4flix.recommendation.controller;
+
+import java.util.List;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.neo4flix.recommendation.dto.MovieRecommendation;
+import com.neo4flix.recommendation.service.RecommandationService;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/recommandations")
+public class RecommandationController {
+    private final RecommandationService service;
+
+    @GetMapping
+    public List<MovieRecommendation> findRecommendations(
+            @RequestParam(defaultValue = "0") Integer skip,
+            @RequestParam(defaultValue = "20") Integer limit,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        String email = jwt.getSubject();
+
+        return service.getRecommandations(email, skip, limit);
+    }
+
+}
