@@ -13,11 +13,19 @@ import java.util.Optional;
 
 public interface MovieRepository extends Neo4jRepository<Movie, Long> {
 
-        Optional<Movie> findFirstByTitleIgnoreCaseOrderByYearDesc(String title);
-
         Optional<Movie> findByMovieId(String movieId);
 
-        boolean existsByMovieId(String movieId);
+        @Query("""
+                MATCH (u:User {email: $email})
+                MATCH (m:Movie {movieId: $movieId})
+                MERGE (u)-[v:VIEWED]->(m)
+                ON CREATE SET v.count = 1
+                ON MATCH SET v.count = coalesce(v.count, 0) + 1
+                RETURN m
+                """)
+        Optional<Movie> findAndRecordView(
+                @Param("userId") String userId,
+                @Param("email") String email);
 
         @Query(value = """
                         MATCH (m:Movie)

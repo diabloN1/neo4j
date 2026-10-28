@@ -5,6 +5,8 @@ import com.neo4flix.movie.dto.MoviePage;
 import com.neo4flix.movie.service.MovieService;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,8 +28,7 @@ public class MovieController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String genre,
             @RequestParam(required = false) Integer year,
-            Pageable pageable
-        ) {
+            Pageable pageable) {
 
         return service.findMovies(search, genre, year, pageable);
     }
@@ -37,8 +38,13 @@ public class MovieController {
         return service.findGenres();
     }
 
-    @GetMapping("/{title}")
-    public MovieDetails findByTitle(@PathVariable String title) {
-        return service.findByTitle(title);
+    @GetMapping("/{id}")
+    public MovieDetails findById(
+            @PathVariable String id,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        String email = (jwt != null) ? jwt.getSubject() : null;
+
+        return service.findById(id, email);
     }
 }

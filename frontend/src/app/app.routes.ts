@@ -31,7 +31,7 @@ export const routes: Routes = [
       ),
   },
   {
-    path: "movies/:title",
+    path: "movies/:id",
     loadComponent: () =>
       import("./pages/movie-detail-page/movie-detail-page.component").then(
         (m) => m.MovieDetailPageComponent,

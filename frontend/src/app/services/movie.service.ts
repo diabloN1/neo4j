@@ -27,7 +27,7 @@ export class MovieService {
     return this.http.get<string[]>(`${this.apiUrl}/genres`);
   }
 
-  getMovieByTitle(title: string): Observable<Movie> {
-    return this.http.get<Movie>(`${this.apiUrl}/${encodeURIComponent(title)}`);
+  getMovieById(id: string): Observable<Movie> {
+    return this.http.get<Movie>(`${this.apiUrl}/${id}`);
   }
 }

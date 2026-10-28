@@ -60,7 +60,7 @@ export class MovieDetailPageComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap
       .pipe(
-        map((params) => params.get("title")),
+        map((params) => params.get("id")),
         tap(() => {
           this.loading.set(true);
           this.error.set("");
@@ -69,14 +69,14 @@ export class MovieDetailPageComponent implements OnInit {
           this.providerChooserOpen.set(false);
           this.posterFailed.set(false);
         }),
-        switchMap((title) => {
-          if (!title) {
-            this.error.set("No movie title was provided.");
+        switchMap((id) => {
+          if (!id) {
+            this.error.set("No movie id was provided.");
             this.loading.set(false);
             return EMPTY;
           }
 
-          return this.movieService.getMovieByTitle(title).pipe(
+          return this.movieService.getMovieById(id).pipe(
             catchError((error) => {
               this.error.set(
                 error.status === 404

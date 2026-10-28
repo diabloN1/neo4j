@@ -118,7 +118,7 @@
           <div class="mt-7 flex flex-wrap gap-3">
             <a
               z-button
-              [routerLink]="['/movies', movies()[0].title]"
+              [routerLink]="['/movies', movies()[0].movieId]"
               class="h-12 gap-2 bg-white px-6 text-base font-bold text-black hover:bg-zinc-200"
             >
               <span class="material-icons">play_arrow</span>
@@ -128,7 +128,7 @@
             <a
               z-button
               zType="secondary"
-              [routerLink]="['/movies', movies()[0].title]"
+              [routerLink]="['/movies', movies()[0].movieId]"
               class="h-12 gap-2 bg-white/20 px-6 text-base font-bold text-white backdrop-blur-sm hover:bg-white/30 hover:text-white"
             >
               <span class="material-icons">info</span>
@@ -254,7 +254,7 @@
                   loadMoreGenreMovies(category)
               "
             >
-              <a [routerLink]="['/movies', movie.title]" class="block">
+              <a [routerLink]="['/movies', movie.movieId]" class="block">
                 <!-- Poster -->
                 <div
                   class="relative aspect-[2/3] overflow-hidden rounded-lg bg-neutral-900"

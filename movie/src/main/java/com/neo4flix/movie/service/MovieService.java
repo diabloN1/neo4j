@@ -44,10 +44,10 @@ public class MovieService {
         }
 
         Page<MovieSummary> movies = repository.searchMovies(
-                        normalize(search),
-                        normalize(genre),
-                        year,
-                        pageable)
+                normalize(search),
+                normalize(genre),
+                year,
+                pageable)
                 .map(this::toSummary);
 
         return new MoviePage(
@@ -55,15 +55,22 @@ public class MovieService {
                 movies.getTotalElements(),
                 movies.getNumber(),
                 movies.getSize(),
-                movies.getTotalPages()
-        );
+                movies.getTotalPages());
     }
 
     @Transactional(readOnly = true)
-    public MovieDetails findByTitle(String title) {
-        Movie movie = repository
-                .findFirstByTitleIgnoreCaseOrderByYearDesc(title)
-                .orElseThrow(() -> new MovieNotFoundException(title));
+    public MovieDetails findById(String id, String email) {
+        Movie movie;
+
+        if (email != null) {
+            movie = repository.findAndRecordView(id, email)
+                .orElseThrow(() -> new MovieNotFoundException(id));
+
+        } else {
+            movie = repository
+                .findByMovieId(id)
+                .orElseThrow(() -> new MovieNotFoundException(id));
+        }
 
         return toDetails(movie);
     }
@@ -80,8 +87,7 @@ public class MovieService {
                 movie.getYear(),
                 movie.getReleased(),
                 movie.getImdbRating(),
-                movie.getPoster()
-        );
+                movie.getPoster());
     }
 
     private MovieDetails toDetails(Movie movie) {
@@ -104,8 +110,7 @@ public class MovieService {
                 movie.getUrl(),
                 namesOfGenres(movie.getGenres()),
                 namesOfActors(movie.getActors()),
-                namesOfDirectors(movie.getDirectors())
-        );
+                namesOfDirectors(movie.getDirectors()));
     }
 
     private List<String> namesOfGenres(List<Genre> genres) {

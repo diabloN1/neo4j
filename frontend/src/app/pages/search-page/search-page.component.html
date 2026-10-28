@@ -67,7 +67,7 @@
       *ngFor="let movie of movies(); let i = index"
       class="group min-w-0"
     >
-      <a [routerLink]="['/movies', movie.title]" class="block">
+      <a [routerLink]="['/movies', movie.movieId]" class="block">
         <div
           class="relative aspect-[2/3] overflow-hidden rounded-lg bg-neutral-900"
         >
