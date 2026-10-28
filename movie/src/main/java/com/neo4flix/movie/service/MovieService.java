@@ -58,7 +58,7 @@ public class MovieService {
                 movies.getTotalPages());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public MovieDetails findById(String id, String email) {
         Movie movie;
 

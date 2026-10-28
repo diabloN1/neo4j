@@ -4,14 +4,14 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.neo4flix.common.entity.Rating;
+import com.neo4flix.common.entity.Rated;
 import com.neo4flix.rating.dto.RatingResponse;
 import com.neo4flix.rating.dto.RatingAverageResponse;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface RatingRepository extends Neo4jRepository<Rating, Long> {
+public interface RatingRepository extends Neo4jRepository<Rated, Long> {
 
         @Query("""
                         MATCH (u:User {email: $email})

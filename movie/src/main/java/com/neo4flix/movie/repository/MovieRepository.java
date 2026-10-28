@@ -16,15 +16,15 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
         Optional<Movie> findByMovieId(String movieId);
 
         @Query("""
-                MATCH (u:User {email: $email})
                 MATCH (m:Movie {movieId: $movieId})
+                MATCH (u:User {email: $email})
                 MERGE (u)-[v:VIEWED]->(m)
                 ON CREATE SET v.count = 1
                 ON MATCH SET v.count = coalesce(v.count, 0) + 1
                 RETURN m
                 """)
         Optional<Movie> findAndRecordView(
-                @Param("userId") String userId,
+                @Param("movieId") String userId,
                 @Param("email") String email);
 
         @Query(value = """

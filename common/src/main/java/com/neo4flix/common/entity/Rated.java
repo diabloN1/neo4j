@@ -13,7 +13,7 @@ import java.time.Instant;
 @RelationshipProperties
 @Getter 
 @Setter 
-public class Rating {
+public class Rated {
 
     @RelationshipId
     private Long id;
