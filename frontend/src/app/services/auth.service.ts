@@ -2,6 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
+
+export interface RegisterRequest {
+  name: string
+  email: string;
+  password: string;
+}
+
 export interface AuthRequest {
   email: string;
   password: string;
@@ -34,7 +41,7 @@ export class AuthService {
       .pipe(tap((response) => this.saveToken(response.accessToken)));
   }
 
-  register(request: AuthRequest): Observable<AuthResponse> {
+  register(request: RegisterRequest): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/register`, request)
       .pipe(tap((response) => this.saveToken(response.accessToken)));

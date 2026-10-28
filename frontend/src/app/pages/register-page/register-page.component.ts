@@ -89,6 +89,40 @@ function passwordsMatch(
             class="space-y-4"
             novalidate
           >
+           <!-- Name -->
+            <div class="space-y-2">
+              <label for="register-email" class="text-sm font-medium">
+                name
+              </label>
+
+              <input
+                id="register-name"
+                type="text"
+                formControlName="name"
+                placeholder="Your name"
+                class="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+                [attr.aria-invalid]="
+                  form.controls.name.invalid && form.controls.name.touched
+                "
+              />
+
+              @if (
+                form.controls.name.touched &&
+                form.controls.name.hasError('required')
+              ) {
+                <p class="text-sm text-destructive">
+                  Name is required.
+                </p>
+              } @else if (
+                form.controls.name.touched &&
+                form.controls.name.hasError('email')
+              ) {
+                <p class="text-sm text-destructive">
+                  Enter a valid email address.
+                </p>
+              }
+            </div>
+
             <!-- Email -->
             <div class="space-y-2">
               <label for="register-email" class="text-sm font-medium">
@@ -247,6 +281,7 @@ export class RegisterPageComponent {
 
   readonly form = this.fb.nonNullable.group(
     {
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(25)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]],
@@ -264,12 +299,12 @@ export class RegisterPageComponent {
       return;
     }
 
-    const { email, password } = this.form.getRawValue();
+    const { name, email, password } = this.form.getRawValue();
 
     this.busy.set(true);
 
     this.authService
-      .register({ email, password })
+      .register({ name, email, password })
       .pipe(finalize(() => this.busy.set(false)))
       .subscribe({
         next: () => {
