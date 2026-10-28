@@ -13,6 +13,7 @@ import { EMPTY, catchError, finalize } from "rxjs";
 
 import { ZardButtonComponent } from "../button";
 import { RatingService } from "@/services/rating.service";
+import { AuthService } from "@/services/auth.service";
 
 @Component({
   selector: "app-star-rating",
@@ -23,6 +24,7 @@ import { RatingService } from "@/services/rating.service";
 })
 export class StarRatingComponent {
   private readonly ratingService = inject(RatingService);
+  private readonly authService = inject(AuthService);
 
   readonly movieId = input.required<string>();
   readonly valueChange = output<number>();
@@ -42,9 +44,7 @@ export class StarRatingComponent {
   readonly averageLoading = signal(false);
   readonly averageError = signal(false);
 
-  readonly displayRating = computed(
-    () => this.hoveredRating() ?? this.value(),
-  );
+  readonly displayRating = computed(() => this.hoveredRating() ?? this.value());
 
   constructor() {
     effect(() => {
@@ -55,8 +55,11 @@ export class StarRatingComponent {
         return;
       }
 
-      this.loadMyRating(movieId);
       this.loadMovieAverage(movieId);
+
+      if (this.authService.isAuthenticated()) {
+        this.loadMyRating(movieId);
+      }
     });
   }
 
@@ -137,7 +140,8 @@ export class StarRatingComponent {
     this.saving.set(true);
     this.error.set("");
 
-    this.ratingService.rateMovie(this.movieId(), rating)
+    this.ratingService
+      .rateMovie(this.movieId(), rating)
       .pipe(
         catchError(() => {
           this.value.set(previousRating);
