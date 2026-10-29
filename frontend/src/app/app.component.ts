@@ -18,9 +18,7 @@ import { AuthService } from "./services/auth.service";
   ],
   template: `
     <div class="dark min-h-screen bg-zinc-950 text-zinc-100">
-      <header
-        class="sticky top-0 z-30 border-b border-white/10 bg-zinc-950/90"
-      >
+      <header class="sticky top-0 z-30 border-b border-white/10 bg-zinc-950/90">
         <div
           class="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4 sm:gap-8 sm:px-6 lg:px-8"
         >
@@ -55,6 +53,16 @@ import { AuthService } from "./services/auth.service";
             >
               Browse
             </a>
+
+            @if (authService.isAuthenticated()) {
+              <a
+                routerLink="/recommendations"
+                routerLinkActive="text-white"
+                class="transition hover:text-white"
+              >
+                For You
+              </a>
+            }
           </nav>
 
           <!-- Search -->
