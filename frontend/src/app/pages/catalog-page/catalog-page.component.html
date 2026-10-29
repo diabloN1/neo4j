@@ -25,11 +25,9 @@
   </section>
 
   <ng-container *ngIf="!error() || movies().length">
-    <app-movies-slider
-      [movies]="movies()"
-      text="Discover Neo4flix"
-    />
-    <!-- Catalog -->
+    
+    <app-movies-slider [movies]="movies()" text="Discover Neo4flix" />
+
     <main
       id="catalog"
       class="relative mx-auto max-w-[1800px] scroll-mt-8 px-5 pb-20 sm:px-10 lg:px-14"

@@ -53,7 +53,7 @@ export class RecommendationsPageComponent implements OnInit {
 
   readonly brokenPosters = signal(new Set<string>());
 
-  readonly size = 20;
+  readonly size = 50;
   readonly slideDurationMs = 10000;
   private page = 0;
 
