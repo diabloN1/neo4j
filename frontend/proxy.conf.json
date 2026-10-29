@@ -14,7 +14,7 @@
     "secure": "false",
     "changeOrigin": "true"
   },
-  "/api/recommandations": {
+  "/api/recommendations": {
     "target": "http://localhost:8084",
     "secure": "false",
     "changeOrigin": "true"

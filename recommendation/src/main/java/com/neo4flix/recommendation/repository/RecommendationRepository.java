@@ -9,7 +9,7 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface RecommandationRepository extends Neo4jRepository<Movie, Long> {
+public interface RecommendationRepository extends Neo4jRepository<Movie, Long> {
 
     @Query("""
             MATCH (u:User {email: $email})

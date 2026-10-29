@@ -10,15 +10,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.neo4flix.recommendation.dto.MovieRecommendation;
-import com.neo4flix.recommendation.service.RecommandationService;
+import com.neo4flix.recommendation.service.RecommendationService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/recommandations")
-public class RecommandationController {
-    private final RecommandationService service;
+@RequestMapping("/api/recommendations")
+public class RecommendationController {
+    private final RecommendationService service;
 
     @GetMapping
     public List<MovieRecommendation> findRecommendations(

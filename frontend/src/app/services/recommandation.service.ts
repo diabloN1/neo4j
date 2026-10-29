@@ -7,7 +7,7 @@ import { MovieRecommendation } from "@/models/recommendation";
 @Injectable({ providedIn: "root" })
 export class RecommandationService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = "http://localhost:8084/api/recommandations";
+  private readonly apiUrl = "/api/recommendations";
 
   getRecommandations(query: MovieQuery): Observable<MovieRecommendation[]> {
     const skip = query.page * query.size;

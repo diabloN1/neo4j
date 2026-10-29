@@ -25,7 +25,7 @@ public class JwtService {
     private String secret;
 
 
-    private static final long ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(15).toMillis();
+    private static final long ACCESS_TOKEN_EXPIRATION = Duration.ofDays(7).toMillis();
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
