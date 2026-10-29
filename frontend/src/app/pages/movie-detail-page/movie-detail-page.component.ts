@@ -2,10 +2,11 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit, inject, signal, computed } from "@angular/core";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
-import { EMPTY, catchError, finalize, map, switchMap, tap } from "rxjs";
+import { EMPTY, catchError, finalize, map, of, switchMap, tap } from "rxjs";
 
 import { Movie } from "../../models/movie.model";
 import { MovieService } from "../../services/movie.service";
+import { WatchlistService } from "../../services/watchlist.service";
 import { ZardBadgeComponent } from "@/shared/components/badge/badge.component";
 import { ZardButtonComponent } from "@/shared/components/button/button.component";
 import { ZardCardImports } from "@/shared/components/card/card.imports";
@@ -29,12 +30,18 @@ type PlayerProvider = "vidy" | "vidrift";
 export class MovieDetailPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly movieService = inject(MovieService);
+  private readonly watchlistService = inject(WatchlistService);
   private readonly sanitizer = inject(DomSanitizer);
 
   readonly movie = signal<Movie | null>(null);
   readonly loading = signal(true);
   readonly error = signal("");
   readonly posterFailed = signal(false);
+
+  readonly inWatchlist = signal(false);
+  readonly watchlistReady = signal(false);
+  readonly watchlistLoading = signal(false);
+  readonly watchlistError = signal("");
 
   readonly playerOpen = signal(false);
   readonly providerChooserOpen = signal(false);
@@ -65,9 +72,13 @@ export class MovieDetailPageComponent implements OnInit {
           this.loading.set(true);
           this.error.set("");
           this.movie.set(null);
+          this.posterFailed.set(false);
           this.playerOpen.set(false);
           this.providerChooserOpen.set(false);
-          this.posterFailed.set(false);
+          this.inWatchlist.set(false);
+          this.watchlistReady.set(false);
+          this.watchlistLoading.set(false);
+          this.watchlistError.set("");
         }),
         switchMap((id) => {
           if (!id) {
@@ -90,12 +101,33 @@ export class MovieDetailPageComponent implements OnInit {
 
               return EMPTY;
             }),
+            switchMap((movie) =>
+              this.watchlistService.inWatchList(movie.movieId).pipe(
+                map((inWatchlist) => ({
+                  movie,
+                  inWatchlist,
+                  watchlistError: "",
+                })),
+                catchError(() =>
+                  of({
+                    movie,
+                    inWatchlist: false,
+                    watchlistError: "Could not check your watchlist.",
+                  }),
+                ),
+              ),
+            ),
             finalize(() => this.loading.set(false)),
           );
         }),
       )
       .subscribe({
-        next: (movie) => this.movie.set(movie),
+        next: ({ movie, inWatchlist, watchlistError }) => {
+          this.movie.set(movie);
+          this.inWatchlist.set(inWatchlist);
+          this.watchlistError.set(watchlistError);
+          this.watchlistReady.set(!watchlistError);
+        },
         error: (error) =>
           this.error.set(
             error.status === 404
@@ -107,6 +139,41 @@ export class MovieDetailPageComponent implements OnInit {
                   }.`,
           ),
       });
+  }
+
+  toggleWatchlist(): void {
+    const movieId = this.movie()?.movieId;
+
+    if (!movieId || this.watchlistLoading() || !this.watchlistReady()) {
+      return;
+    }
+
+    const wasInWatchlist = this.inWatchlist();
+
+    this.watchlistLoading.set(true);
+    this.watchlistError.set("");
+
+    const request = wasInWatchlist
+      ? this.watchlistService.removeWatchlist(movieId)
+      : this.watchlistService.addWatchlist(movieId);
+
+    request
+      .pipe(
+        tap(() => this.inWatchlist.set(!wasInWatchlist)),
+        catchError((error) => {
+          this.watchlistError.set(
+            error.status === 0
+              ? "Cannot reach the Watchlist API. Please try again."
+              : `Could not ${wasInWatchlist ? "remove the movie from" : "add the movie to"} your watchlist${
+                  error.status ? ` (${error.status})` : ""
+                }.`,
+          );
+
+          return EMPTY;
+        }),
+        finalize(() => this.watchlistLoading.set(false)),
+      )
+      .subscribe();
   }
 
   playMovie(): void {

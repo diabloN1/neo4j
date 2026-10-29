@@ -105,7 +105,10 @@
             </div>
 
             <!-- Genres -->
-            <div *ngIf="item.genreNames?.length" class="mt-5 flex flex-wrap gap-2">
+            <div
+              *ngIf="item.genreNames?.length"
+              class="mt-5 flex flex-wrap gap-2"
+            >
               <z-badge
                 *ngFor="let genre of item.genreNames"
                 zType="secondary"
@@ -132,6 +135,7 @@
 
             <!-- Actions -->
             <div class="mt-8 flex flex-wrap items-center gap-3">
+              <!-- Play button -->
               <button
                 *ngIf="playerUrl() && !playerOpen()"
                 z-button
@@ -147,7 +151,47 @@
               <p *ngIf="!playerUrl()" class="text-sm text-zinc-400">
                 Playback unavailable: no valid TMDB ID.
               </p>
+
+              <!-- Watchlist button -->
+              <button
+                *ngIf="watchlistReady()"
+                z-button
+                zType="outline"
+                type="button"
+                [disabled]="watchlistLoading()"
+                class="h-12 gap-3 border px-6 transition-colors duration-200"
+                [ngClass]="
+                  inWatchlist()
+                    ? 'border-rose-500/50 bg-rose-500/15 text-rose-400 hover:bg-rose-500/25'
+                    : 'border-white/20 bg-white/5 text-white hover:border-white/40 hover:bg-white/10'
+                "
+                (click)="toggleWatchlist()"
+              >
+                <span
+                  class="material-icons"
+                  [ngClass]="inWatchlist() ? 'text-rose-400' : 'text-zinc-400'"
+                >
+                  {{ inWatchlist() ? "bookmark_added" : "bookmark_add" }}
+                </span>
+
+                {{
+                  watchlistLoading()
+                    ? "Updating..."
+                    : inWatchlist()
+                      ? ""
+                      : "Add to Watchlist"
+                }}
+              </button>
+
+              <p
+                *ngIf="watchlistError()"
+                role="status"
+                class="w-full text-sm text-rose-400"
+              >
+                {{ watchlistError() }}
+              </p>
             </div>
+
             <!-- User rating -->
             <div class="mt-8 max-w-xl">
               <app-star-rating [movieId]="item.movieId" />
