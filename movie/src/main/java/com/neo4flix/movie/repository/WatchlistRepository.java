@@ -1,15 +1,15 @@
 package com.neo4flix.movie.repository;
 
 import com.neo4flix.common.entity.Movie;
+import com.neo4flix.common.entity.Watchlist;
 
+import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
-public interface WatchlistRepository {
+public interface WatchlistRepository extends Neo4jRepository<Watchlist, Long> {
 
         @Query("""
                         MATCH (u:User {email: $email})-[w:WATCHLIST]->(m:Movie)
@@ -32,7 +32,7 @@ public interface WatchlistRepository {
                         MATCH (m:Movie {movieId: $movieId})
 
                         MERGE (u)-[w:WATCHLIST]->(m)
-                        ON CREATE SET r.createdAt = datetime()
+                        ON CREATE SET w.createdAt = datetime()
 
                         RETURN true AS success
                         """)
