@@ -19,7 +19,7 @@ public record MovieDetails(
         String tmdbId,
         String poster,
         String url,
-        List<String> genres,
-        List<String> actors,
-        List<String> directors
+        List<String> genreNames,
+        List<String> actorNames,
+        List<String> directorNames
 ) {}

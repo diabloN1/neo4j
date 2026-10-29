@@ -1,8 +1,5 @@
 package com.neo4flix.movie.service;
 
-import com.neo4flix.common.entity.Actor;
-import com.neo4flix.common.entity.Director;
-import com.neo4flix.common.entity.Genre;
 import com.neo4flix.common.entity.Movie;
 import com.neo4flix.movie.dto.MovieDetails;
 import com.neo4flix.movie.dto.MoviePage;
@@ -60,19 +57,18 @@ public class MovieService {
 
     @Transactional
     public MovieDetails findById(String id, String email) {
-        Movie movie;
+        MovieDetails movie;
 
         if (email != null) {
             movie = repository.findAndRecordView(id, email)
-                .orElseThrow(() -> new MovieNotFoundException(id));
-
+                    .orElseThrow(() -> new MovieNotFoundException(id));
         } else {
             movie = repository
-                .findByMovieId(id)
-                .orElseThrow(() -> new MovieNotFoundException(id));
+                    .findByMovieId(id)
+                    .orElseThrow(() -> new MovieNotFoundException(id));
         }
 
-        return toDetails(movie);
+        return movie;
     }
 
     @Transactional(readOnly = true)
@@ -88,69 +84,6 @@ public class MovieService {
                 movie.getReleased(),
                 movie.getImdbRating(),
                 movie.getPoster());
-    }
-
-    private MovieDetails toDetails(Movie movie) {
-        return new MovieDetails(
-                movie.getMovieId(),
-                movie.getTitle(),
-                movie.getYear(),
-                movie.getReleased(),
-                movie.getPlot(),
-                movie.getBudget(),
-                movie.getRevenue(),
-                movie.getRuntime(),
-                safeList(movie.getCountries()),
-                safeList(movie.getLanguages()),
-                movie.getImdbId(),
-                movie.getImdbRating(),
-                movie.getImdbVotes(),
-                movie.getTmdbId(),
-                movie.getPoster(),
-                movie.getUrl(),
-                namesOfGenres(movie.getGenres()),
-                namesOfActors(movie.getActors()),
-                namesOfDirectors(movie.getDirectors()));
-    }
-
-    private List<String> namesOfGenres(List<Genre> genres) {
-        if (genres == null) {
-            return List.of();
-        }
-
-        return genres.stream()
-                .map(Genre::getName)
-                .filter(name -> name != null && !name.isBlank())
-                .distinct()
-                .toList();
-    }
-
-    private List<String> namesOfActors(List<Actor> actors) {
-        if (actors == null) {
-            return List.of();
-        }
-
-        return actors.stream()
-                .map(Actor::getName)
-                .filter(name -> name != null && !name.isBlank())
-                .distinct()
-                .toList();
-    }
-
-    private List<String> namesOfDirectors(List<Director> directors) {
-        if (directors == null) {
-            return List.of();
-        }
-
-        return directors.stream()
-                .map(Director::getName)
-                .filter(name -> name != null && !name.isBlank())
-                .distinct()
-                .toList();
-    }
-
-    private List<String> safeList(List<String> values) {
-        return values == null ? List.of() : List.copyOf(values);
     }
 
     private String normalize(String value) {

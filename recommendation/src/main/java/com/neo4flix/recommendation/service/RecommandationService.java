@@ -14,8 +14,8 @@ import lombok.RequiredArgsConstructor;
 public class RecommandationService {
     private final RecommandationRepository repo;
 
-    public List<MovieRecommendation> getRecommandations(String email, Integer skip, Integer limit) {
-        return repo.findRecommendations(null, 0, 0);
+    public List<MovieRecommendation> getRecommandations(String email, String genre, Integer year, int skip, int limit) {
+        return repo.findRecommendations(email, genre, year, skip, limit);
     }
     
 }

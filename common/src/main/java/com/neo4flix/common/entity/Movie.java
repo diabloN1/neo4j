@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Node("Movie")
-@Getter 
-@Setter 
+@Getter
+@Setter
 @NoArgsConstructor
 public class Movie {
 

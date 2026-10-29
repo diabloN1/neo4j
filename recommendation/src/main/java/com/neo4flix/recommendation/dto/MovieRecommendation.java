@@ -4,7 +4,7 @@ public record MovieRecommendation(
         String movieId,
         String title,
         Integer year,
-        String poster,
-        Double score
+        Double imdbRating,
+        String poster
 ) {
 }

@@ -36,6 +36,13 @@ public interface RecommandationRepository extends Neo4jRepository<Movie, Long> {
 
             MATCH (candidate:Movie)
             WHERE candidate <> m
+            
+                AND ($year IS NULL OR candidate.year = $year)
+
+                AND ($genre IS NULL OR EXISTS {
+                    MATCH (candidate)-[:IN_GENRE]->(g:Genre)
+                    WHERE toLower(g.name) = toLower($genre)
+                })
 
             WITH u, m, candidate, preference,
 
@@ -81,15 +88,18 @@ public interface RecommandationRepository extends Neo4jRepository<Movie, Long> {
                 candidate.movieId AS movieId,
                 candidate.title AS title,
                 candidate.year AS year,
+                candidate.imdbRating AS imdbRating,
                 candidate.poster AS poster,
                 score AS score
 
-            ORDER BY score DESC, title ASC
+            ORDER BY score DESC
             SKIP $skip
             LIMIT $limit
             """)
     List<MovieRecommendation> findRecommendations(
             @Param("email") String email,
+            @Param("genre") String genre,
+            @Param("year") Integer year,
             @Param("skip") int skip,
             @Param("limit") int limit);
 }

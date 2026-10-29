@@ -22,13 +22,15 @@ public class RecommandationController {
 
     @GetMapping
     public List<MovieRecommendation> findRecommendations(
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) Integer year,
             @RequestParam(defaultValue = "0") Integer skip,
-            @RequestParam(defaultValue = "20") Integer limit,
+            @RequestParam(defaultValue = "0") Integer limit,
             @AuthenticationPrincipal Jwt jwt) {
 
         String email = jwt.getSubject();
 
-        return service.getRecommandations(email, skip, limit);
+        return service.getRecommandations(email, genre, year, skip, limit);
     }
 
 }
