@@ -76,8 +76,9 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
                   MATCH (m)-[:IN_GENRE]->(g:Genre)
                   WHERE toLower(g.name) = toLower($genre)
               })
+
             RETURN m
-            ORDER BY m.title
+            ORDER BY m.imdbRating DESC, m.title ASC
             SKIP $skip
             LIMIT $limit
             """, countQuery = """
@@ -92,6 +93,7 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
                   MATCH (m)-[:IN_GENRE]->(g:Genre)
                   WHERE toLower(g.name) = toLower($genre)
               })
+
             RETURN count(m)
             """)
     Page<Movie> searchMovies(
@@ -106,16 +108,4 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
             ORDER BY name
             """)
     List<String> findGenreNames();
-
-    @Query("""
-            MATCH (m:Movie {movieId: $movieId})
-
-            CALL (m) {
-                OPTIONAL MATCH (m)-[:IN_GENRE]->(g:Genre)
-                RETURN collect(DISTINCT g.name) AS genres
-            }
-
-            RETURN genres
-            """)
-    List<List<String>> debugGenres(@Param("movieId") String movieId);
 }

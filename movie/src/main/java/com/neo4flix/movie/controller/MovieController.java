@@ -4,24 +4,21 @@ import com.neo4flix.movie.dto.MovieDetails;
 import com.neo4flix.movie.dto.MoviePage;
 import com.neo4flix.movie.service.MovieService;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/movies")
-@Validated
+@RequiredArgsConstructor 
 public class MovieController {
 
     private final MovieService service;
-
-    public MovieController(MovieService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public MoviePage findMovies(
