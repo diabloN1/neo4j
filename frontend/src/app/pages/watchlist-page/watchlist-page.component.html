@@ -1,0 +1,219 @@
+<div class="min-h-screen overflow-x-hidden bg-[#141414] text-white">
+  <!-- Loading state -->
+  <section
+    *ngIf="loading()"
+    class="flex min-h-[70vh] flex-col items-center justify-center gap-5 px-5 text-center"
+    aria-live="polite"
+  >
+    <span
+      class="size-12 animate-spin rounded-full border-2 border-zinc-700 border-t-rose-600"
+    ></span>
+    <p class="text-sm text-zinc-400">Loading your watchlist...</p>
+  </section>
+
+  <!-- Error state -->
+  <section
+    *ngIf="error() && !loading()"
+    class="flex min-h-[70vh] flex-col items-center justify-center gap-4 px-5 text-center"
+    role="alert"
+  >
+    <span class="text-5xl font-black text-rose-600">N</span>
+    <h2 class="text-2xl font-bold">Watchlist unavailable</h2>
+    <p class="max-w-lg text-sm leading-6 text-zinc-400">{{ error() }}</p>
+    <button z-button type="button" (click)="loadWatchlist()">Try again</button>
+  </section>
+
+  <ng-container *ngIf="!loading() && !error()">
+    <!-- Header -->
+    <header class="mx-auto max-w-[1800px] px-5 pt-10 sm:px-10 lg:px-14">
+      <a
+        z-button
+        zType="ghost"
+        routerLink="/movies"
+        class="-ml-3 mb-7 gap-2 text-zinc-400 hover:bg-white/5 hover:text-white"
+      >
+        <span class="material-icons text-lg">arrow_back</span>
+        Back to discovery
+      </a>
+
+      <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+        <div>
+          <p
+            class="text-xs font-bold uppercase tracking-[0.25em] text-rose-500"
+          >
+            Your personal collection
+          </p>
+          <h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+            My Watchlist
+          </h1>
+          <p class="mt-2 max-w-lg text-sm leading-6 text-zinc-400">
+            All the movies you want to watch, collected in one place. Your next
+            favorite is waiting.
+          </p>
+        </div>
+
+        <div
+          *ngIf="movies().length"
+          class="flex w-fit items-center gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3"
+        >
+          <span class="material-icons text-2xl text-rose-500"> bookmark </span>
+          <div>
+            <p class="text-xl font-bold">{{ movies().length }}</p>
+            <p class="text-xs text-zinc-500">
+              {{ movies().length === 1 ? "Movie saved" : "Movies saved" }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-[1800px] px-5 pb-20 sm:px-10 lg:px-14">
+      <!-- Collection heading -->
+      <section
+        class="flex flex-col gap-3 py-8 sm:flex-row sm:items-end sm:justify-between"
+      >
+      </section>
+
+      <!-- Movie collection -->
+      <section *ngIf="movies().length" aria-label="Movies in your watchlist">
+        <div
+          class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-5 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
+        >
+          @for (movie of movies(); track movie.movieId) {
+            <article class="group min-w-0">
+              <div
+                class="relative aspect-[2/3] overflow-hidden rounded-lg border border-white/5 bg-[#1c1c1c]"
+              >
+                <a
+                  [routerLink]="['/movies', movie.movieId]"
+                  [attr.aria-label]="'View ' + movie.title"
+                  class="block h-full w-full"
+                >
+                  <img
+                    *ngIf="movie.poster && !hasPosterFailed(movie.movieId)"
+                    [src]="movie.poster"
+                    [alt]="movie.title + ' poster'"
+                    loading="lazy"
+                    (error)="markPosterFailed(movie.movieId)"
+                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+
+                  <div
+                    *ngIf="!movie.poster || hasPosterFailed(movie.movieId)"
+                    class="flex h-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-rose-950/70 to-zinc-900 p-4 text-center"
+                  >
+                    <span class="text-4xl font-black text-rose-600">N</span>
+                    <span class="text-xs font-semibold leading-5 text-zinc-400">
+                      {{ movie.title }}
+                    </span>
+                  </div>
+                </a>
+
+                <!-- IMDb rating -->
+                <div
+                  *ngIf="movie.imdbRating != null"
+                  class="absolute left-2 top-2 rounded bg-black/80 px-2 py-1 text-xs font-semibold text-yellow-400 backdrop-blur-sm"
+                >
+                  ★ {{ movie.imdbRating }}
+                </div>
+
+                <!-- Remove from watchlist -->
+                <button
+                  type="button"
+                  [disabled]="removingMovieIds().has(movie.movieId)"
+                  [attr.aria-label]="
+                    'Remove ' + movie.title + ' from watchlist'
+                  "
+                  [attr.title]="'Remove ' + movie.title + ' from watchlist'"
+                  class="absolute cursor-pointer right-2 top-2 z-10 flex size-9 items-center justify-center rounded-full border border-white/10 bg-black/80 text-white backdrop-blur-sm transition-colors hover:border-rose-500/50 hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  (click)="removeMovie(movie)"
+                >
+                  <span class="material-icons text-lg">
+                    {{
+                      removingMovieIds().has(movie.movieId)
+                        ? "hourglass_empty"
+                        : "bookmark_remove"
+                    }}
+                  </span>
+                </button>
+
+                <!-- Hover overlay -->
+                <a
+                  [routerLink]="['/movies', movie.movieId]"
+                  [attr.aria-label]="'View ' + movie.title"
+                  class="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-300 group-hover:bg-black/40"
+                >
+                  <span
+                    class="flex size-12 items-center justify-center rounded-full bg-white text-black opacity-0 shadow-lg transition-opacity duration-300 group-hover:opacity-100"
+                  >
+                    <span class="material-icons">play_arrow</span>
+                  </span>
+                </a>
+              </div>
+
+              <!-- Movie information -->
+              <a
+                [routerLink]="['/movies', movie.movieId]"
+                class="block truncate font-semibold text-white transition-colors hover:text-rose-400"
+                [title]="movie.title"
+              >
+                <h3 class="mt-3 truncate">{{ movie.title }}</h3>
+              </a>
+
+              <div
+                class="mt-1 flex items-center justify-between gap-2 text-sm text-zinc-400"
+              >
+                <span>{{ movie.year ?? "Year unknown" }}</span>
+                <span
+                  *ngIf="movie.imdbRating != null"
+                  class="shrink-0 text-xs text-yellow-400"
+                >
+                  IMDb {{ movie.imdbRating }}
+                </span>
+              </div>
+
+              <!-- Removal error -->
+              <p
+                *ngIf="removeErrors()[movie.movieId]"
+                role="status"
+                class="mt-2 text-xs leading-5 text-rose-400"
+              >
+                {{ removeErrors()[movie.movieId] }}
+              </p>
+            </article>
+          }
+        </div>
+      </section>
+
+      <!-- Empty state -->
+      <section
+        *ngIf="!movies().length"
+        class="flex min-h-80 flex-col items-center justify-center rounded-xl border border-white/10 bg-[#1c1c1c] px-5 py-12 text-center"
+      >
+        <div
+          class="flex size-20 items-center justify-center rounded-full border border-rose-500/20 bg-rose-500/5"
+        >
+          <span class="material-icons text-4xl text-rose-500">
+            bookmark_border
+          </span>
+        </div>
+
+        <h3 class="mt-6 text-xl font-bold">Your watchlist is empty</h3>
+
+        <p class="mt-2 max-w-md text-sm leading-6 text-zinc-400">
+          Discover your next favorite movie. Bookmark titles you're interested
+          in and they'll be waiting for you here.
+        </p>
+
+        <a
+          z-button
+          routerLink="/movies"
+          class="mt-5 gap-2 bg-rose-600 text-white hover:bg-rose-500"
+        >
+          <span class="material-icons text-lg">explore</span>
+          Explore movies
+        </a>
+      </section>
+    </main>
+  </ng-container>
+</div>

@@ -1,7 +1,6 @@
 package com.neo4flix.movie.repository;
 
 import com.neo4flix.common.entity.Movie;
-import com.neo4flix.common.entity.Watchlist;
 
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -9,12 +8,13 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface WatchlistRepository extends Neo4jRepository<Watchlist, Long> {
+public interface WatchlistRepository extends Neo4jRepository<Movie, Long> {
 
         @Query("""
                         MATCH (u:User {email: $email})-[w:WATCHLIST]->(m:Movie)
 
-                        RETURN m ORDER BY w.createdAt DESC
+                        RETURN m
+                        ORDER BY w.createdAt DESC
                         """)
         List<Movie> findMoviesByUser(@Param("email") String email);
 

@@ -36,7 +36,7 @@ import { MovieService } from "../../../services/movie.service";
     <button
       type="button"
       (click)="openSearch()"
-      class="ml-auto flex h-9 items-center gap-2 rounded-md border border-white/10 bg-white/5 px-3 text-sm text-zinc-300 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+      class="ml-auto flex h-11 items-center gap-2 rounded-md border border-white/10 bg-white/5 px-3 lg:gap-14 text-sm text-zinc-300 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
       aria-label="Search movies"
       title="Search movies (Ctrl+K)"
     >

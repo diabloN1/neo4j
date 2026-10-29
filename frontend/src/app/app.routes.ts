@@ -38,10 +38,18 @@ export const routes: Routes = [
       ),
   },
   {
-  path: 'recommendations',
+    path: "recommendations",
     loadComponent: () =>
-      import('./pages/recommendations-page/recommendations-page.component')
-        .then((m) => m.RecommendationsPageComponent),
+      import("./pages/recommendations-page/recommendations-page.component").then(
+        (m) => m.RecommendationsPageComponent,
+      ),
+  },
+  {
+    path: "watchlist",
+    loadComponent: () =>
+      import("./pages/watchlist-page/watchlist-page.component").then(
+        (m) => m.WatchlistPageComponent,
+      ),
   },
   { path: "**", redirectTo: "movies" },
 ];

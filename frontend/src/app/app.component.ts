@@ -20,7 +20,7 @@ import { AuthService } from "./services/auth.service";
     <div class="dark min-h-screen bg-zinc-950 text-zinc-100">
       <header class="sticky top-0 z-30 border-b border-white/10 bg-zinc-950/90">
         <div
-          class="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4 sm:gap-8 sm:px-6 lg:px-8"
+          class="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4 sm:gap-8 lg:gap-30 sm:px-6 lg:px-8"
         >
           <!-- Logo -->
           <a
@@ -76,8 +76,17 @@ import { AuthService } from "./services/auth.service";
                 Register
               </button>
             } @else {
-              <span class="size-2 rounded-full bg-emerald-400"></span>
-              <span>Logged in</span>
+              <!-- Watchlist -->
+              <a
+                routerLink="/watchlist"
+                routerLinkActive="text-rose-500"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="flex items-center gap-1.5 whitespace-nowrap transition-colors hover:text-rose-400"
+                aria-label="My watchlist"
+              >
+                <span class="material-icons text-lg">bookmark</span>
+              </a>
+
               <button
                 z-button
                 zType="destructive"
