@@ -1,7 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnInit, inject, signal } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from "@angular/core";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
-import { catchError, finalize, of } from "rxjs";
+import { catchError, finalize, interval, of } from "rxjs";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { MovieQuery } from "../../models/movie.model";
@@ -10,8 +17,8 @@ import { RecommandationService } from "../../services/recommandation.service";
 
 import { ZardButtonComponent } from "@/shared/components/button/button.component";
 import { MovieRecommendation } from "@/models/recommendation";
-
 import { ObserveVisibleDirective } from "@/shared/directives/observe-visible.directive";
+import { MoviesSliderComponent } from "@/shared/components/movies-slider/movies-slider.component";
 
 @Component({
   selector: "app-recommendations-page",
@@ -21,6 +28,7 @@ import { ObserveVisibleDirective } from "@/shared/directives/observe-visible.dir
     RouterLink,
     ObserveVisibleDirective,
     ZardButtonComponent,
+    MoviesSliderComponent
   ],
   templateUrl: "./recommendations-page.component.html",
 })
@@ -41,28 +49,33 @@ export class RecommendationsPageComponent implements OnInit {
   readonly loadingMore = signal(false);
   readonly error = signal("");
   readonly hasMore = signal(true);
+  readonly filtersOpen = signal(false);
 
   readonly brokenPosters = signal(new Set<string>());
 
   readonly size = 20;
+  readonly slideDurationMs = 10000;
   private page = 0;
 
   ngOnInit(): void {
-    this.route.queryParamMap.subscribe((params) => {
-      const genre = params.get("genre") ?? "";
-      const yearParam = params.get("year");
-      const year = yearParam ? Number(yearParam) : null;
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const genre = params.get("genre") ?? "";
+        const yearParam = params.get("year");
+        const year = yearParam ? Number(yearParam) : null;
 
-      this.selectedGenre.set(genre);
-      this.selectedYear.set(
-        year !== null && Number.isInteger(year) ? year : null,
-      );
+        this.selectedGenre.set(genre);
+        this.selectedYear.set(
+          year !== null && Number.isInteger(year) ? year : null,
+        );
 
-      this.loadRecommendations(true);
-    });
+        this.loadRecommendations(true);
+      });
 
     this.loadGenres();
   }
+
   private loadGenres(): void {
     this.movieService
       .getGenres()
@@ -155,6 +168,10 @@ export class RecommendationsPageComponent implements OnInit {
         this.hasMore.set(response.length === this.size);
         this.page++;
       });
+  }
+
+  toggleFilters(): void {
+    this.filtersOpen.update((open) => !open);
   }
 
   onGenreChange(event: Event): void {

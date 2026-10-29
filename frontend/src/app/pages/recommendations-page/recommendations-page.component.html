@@ -1,5 +1,5 @@
-<div class="min-h-screen bg-[#141414] text-white">
-  <!-- Loading state -->
+<div class="min-h-screen overflow-x-hidden bg-[#141414] text-white">
+  <!-- Initial loading state -->
   <section
     *ngIf="loading() && !recommendations().length"
     class="flex min-h-[70vh] flex-col items-center justify-center gap-5 px-5 text-center"
@@ -8,32 +8,130 @@
     <span
       class="size-12 animate-spin rounded-full border-2 border-zinc-700 border-t-rose-600"
     ></span>
-
     <p class="text-sm text-zinc-400">Finding movies picked for you...</p>
   </section>
 
-  <!-- Error state -->
+  <!-- Initial error state -->
   <section
     *ngIf="error() && !recommendations().length && !loading()"
     class="flex min-h-[70vh] flex-col items-center justify-center gap-4 px-5 text-center"
     role="alert"
   >
     <span class="text-5xl font-black text-rose-600">N</span>
-
     <h2 class="text-2xl font-bold">Recommendations unavailable</h2>
-
-    <p class="max-w-lg text-sm leading-6 text-zinc-400">
-      {{ error() }}
-    </p>
-
+    <p class="max-w-lg text-sm leading-6 text-zinc-400">{{ error() }}</p>
     <button z-button type="button" (click)="retry()">Try again</button>
   </section>
 
   <ng-container *ngIf="!loading() || recommendations().length">
+    <app-movies-slider [movies]="recommendations()" text="Featured for you" />
 
-    <!-- Recommendations -->
+    <!-- Top bar -->
+    <div
+      class="mx-auto flex max-w-[1800px] items-center justify-between gap-4 px-5 pt-7 sm:px-10 lg:px-14"
+    >
+      <div></div>
+
+      <button
+        z-button
+        type="button"
+        zType="outline"
+        class="gap-2 border-white/20 bg-black/30 text-white backdrop-blur-md hover:bg-white/10"
+        [attr.aria-expanded]="filtersOpen()"
+        aria-controls="movie-filters"
+        (click)="toggleFilters()"
+      >
+        <span class="material-icons text-lg">tune</span>
+        {{ filtersOpen() ? "Hide filters" : "Filters" }}
+        <span
+          *ngIf="selectedGenre() || selectedYear() !== null"
+          class="size-2 rounded-full bg-rose-500"
+          aria-label="Filters active"
+        ></span>
+      </button>
+    </div>
+
+    <!-- Collapsible filters -->
+    <section
+      *ngIf="filtersOpen()"
+      id="movie-filters"
+      class="lg:mx-20 mb-8 mt-6 rounded-2xl border border-white/10 bg-[#1c1c1c] p-4 shadow-xl shadow-black/20 sm:p-6"
+    >
+      <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span
+            class="flex size-10 items-center justify-center rounded-xl bg-rose-600/15 text-rose-400"
+          >
+            <span class="material-icons">tune</span>
+          </span>
+          <div>
+            <h2 class="font-semibold">Refine your recommendations</h2>
+            <p class="mt-1 text-xs text-zinc-500">
+              Choose a genre or release year.
+            </p>
+          </div>
+        </div>
+
+        <button
+          *ngIf="selectedGenre() || selectedYear() !== null"
+          z-button
+          zType="ghost"
+          type="button"
+          class="text-sm text-zinc-400 hover:text-white"
+          (click)="clearFilters()"
+        >
+          Clear filters
+        </button>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]">
+        <label class="flex flex-col gap-2">
+          <span class="text-xs font-medium text-zinc-400">Genre</span>
+          <select
+            [value]="selectedGenre()"
+            (change)="onGenreChange($event)"
+            class="h-11 w-full rounded-lg border border-white/10 bg-[#141414] px-3 text-sm text-white outline-none transition-colors focus:border-rose-500"
+          >
+            <option value="">All genres</option>
+            <option
+              *ngFor="let genre of genres()"
+              [value]="genre"
+              [selected]="genre == selectedGenre()"
+            >
+              {{ genre }}
+            </option>
+          </select>
+        </label>
+
+        <label class="flex flex-col gap-2">
+          <span class="text-xs font-medium text-zinc-400">Release year</span>
+          <input
+            type="number"
+            min="1888"
+            [value]="selectedYear() ?? ''"
+            (change)="onYearChange($event)"
+            placeholder="Any year"
+            class="h-11 w-full rounded-lg border border-white/10 bg-[#141414] px-3 text-sm text-white outline-none transition-colors placeholder:text-zinc-600 focus:border-rose-500"
+          />
+        </label>
+
+        <div class="flex items-end">
+          <button
+            z-button
+            type="button"
+            class="h-11 w-full gap-2 bg-rose-600 px-5 font-semibold text-white hover:bg-rose-500 lg:w-auto"
+            [disabled]="loading() || loadingMore()"
+            (click)="loadRecommendations()"
+          >
+            <span class="material-icons text-lg">refresh</span>
+            Refresh results
+          </button>
+        </div>
+      </div>
+    </section>
+
     <main class="mx-auto max-w-[1800px] px-5 pb-20 sm:px-10 lg:px-14">
-      <!-- Heading -->
+      <!-- Results heading -->
       <section
         class="flex flex-col gap-4 py-8 sm:flex-row sm:items-end sm:justify-between"
       >
@@ -43,91 +141,23 @@
           >
             Your personal collection
           </p>
-
           <h2 class="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-            Recommended for you
+            {{
+              selectedGenre() || selectedYear() !== null
+                ? "Filtered recommendations"
+                : "Recommended for you"
+            }}
           </h2>
-
           <p class="mt-2 text-sm text-zinc-400">
             Movies selected based on your activity and preferences.
           </p>
         </div>
 
         <div *ngIf="recommendations().length" class="text-sm text-zinc-400">
-          <span class="font-semibold text-white">
-            {{ recommendations().length }}
-          </span>
+          <span class="font-semibold text-white">{{
+            recommendations().length
+          }}</span>
           movies discovered
-        </div>
-      </section>
-
-      <!-- Filters -->
-      <section
-        class="mb-8 rounded-xl border border-white/10 bg-[#1c1c1c] p-4 sm:p-5"
-      >
-        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-2">
-            <span class="material-icons text-rose-500">tune</span>
-
-            <h3 class="font-semibold">Refine recommendations</h3>
-          </div>
-
-          <button
-            *ngIf="selectedGenre() || selectedYear() !== null"
-            z-button
-            zType="ghost"
-            type="button"
-            class="text-sm text-zinc-400 hover:text-white"
-            (click)="clearFilters()"
-          >
-            Clear filters
-          </button>
-        </div>
-
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]">
-          <!-- Genre -->
-          <label class="flex flex-col gap-2">
-            <span class="text-xs font-medium text-zinc-400">Genre</span>
-
-            <select
-              [value]="selectedGenre()"
-              (change)="onGenreChange($event)"
-              class="h-11 w-full rounded-lg border border-white/10 bg-[#141414] px-3 text-sm text-white outline-none transition-colors focus:border-rose-500"
-            >
-              <option value="">All genres</option>
-
-              <option *ngFor="let genre of genres()" [value]="genre" [selected]="selectedGenre() == genre">
-                {{ genre }}
-              </option>
-            </select>
-          </label>
-
-          <!-- Year -->
-          <label class="flex flex-col gap-2">
-            <span class="text-xs font-medium text-zinc-400">Release year</span>
-
-            <input
-              type="number"
-              min="1888"
-              [value]="selectedYear() ?? ''"
-              (change)="onYearChange($event)"
-              placeholder="Any year"
-              class="h-11 w-full rounded-lg border border-white/10 bg-[#141414] px-3 text-sm text-white outline-none transition-colors placeholder:text-zinc-600 focus:border-rose-500"
-            />
-          </label>
-
-          <div class="flex items-end">
-            <button
-              z-button
-              type="button"
-              class="h-11 w-full gap-2 bg-rose-600 px-5 font-semibold text-white hover:bg-rose-500 lg:w-auto"
-              [disabled]="loading() || loadingMore()"
-              (click)="loadRecommendations()"
-            >
-              <span class="material-icons text-lg">refresh</span>
-              Refresh
-            </button>
-          </div>
         </div>
       </section>
 
@@ -138,7 +168,6 @@
         role="alert"
       >
         <p class="text-sm text-rose-300">{{ error() }}</p>
-
         <button
           z-button
           zType="outline"
@@ -150,7 +179,7 @@
         </button>
       </section>
 
-      <!-- Movie grid -->
+      <!-- Movie collection -->
       <section *ngIf="recommendations().length" aria-label="Recommended movies">
         <div
           class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-5 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
@@ -160,7 +189,6 @@
             class="group min-w-0"
           >
             <a [routerLink]="['/movies', movie.movieId]" class="block">
-              <!-- Poster -->
               <div
                 class="relative aspect-[2/3] overflow-hidden rounded-lg border border-white/5 bg-[#1c1c1c]"
               >
@@ -178,13 +206,11 @@
                   class="flex h-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-rose-950/70 to-zinc-900 p-4 text-center"
                 >
                   <span class="text-4xl font-black text-rose-600">N</span>
-
-                  <span class="text-xs font-semibold leading-5 text-zinc-400">
-                    {{ movie.title }}
-                  </span>
+                  <span class="text-xs font-semibold leading-5 text-zinc-400">{{
+                    movie.title
+                  }}</span>
                 </div>
 
-                <!-- IMDb rating -->
                 <div
                   *ngIf="movie.imdbRating != null"
                   class="absolute left-2 top-2 rounded bg-black/80 px-2 py-1 text-xs font-semibold text-yellow-400 backdrop-blur-sm"
@@ -192,7 +218,6 @@
                   ★ {{ movie.imdbRating }}
                 </div>
 
-                <!-- Hover overlay -->
                 <div
                   class="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-300 group-hover:bg-black/40"
                 >
@@ -204,32 +229,28 @@
                 </div>
               </div>
 
-              <!-- Details -->
               <h3
                 class="mt-3 truncate font-semibold text-white transition-colors group-hover:text-rose-400"
                 [title]="movie.title"
               >
                 {{ movie.title }}
               </h3>
-
               <div
                 class="mt-1 flex items-center justify-between gap-2 text-sm text-zinc-400"
               >
                 <span>{{ movie.year ?? "Year unknown" }}</span>
-
                 <span
                   *ngIf="movie.imdbRating != null"
                   class="shrink-0 text-xs text-yellow-400"
+                  >IMDb {{ movie.imdbRating }}</span
                 >
-                  IMDb {{ movie.imdbRating }}
-                </span>
               </div>
             </a>
           </article>
         </div>
       </section>
 
-      <!-- Initial empty state -->
+      <!-- Empty state -->
       <section
         *ngIf="!loading() && !error() && !recommendations().length"
         class="flex min-h-80 flex-col items-center justify-center rounded-xl border border-white/10 bg-[#1c1c1c] px-5 py-12 text-center"
@@ -237,19 +258,16 @@
         <div
           class="flex size-20 items-center justify-center rounded-full border border-rose-500/20 bg-rose-500/5"
         >
-          <span class="material-icons text-4xl text-rose-500">
-            movie_filter
-          </span>
+          <span class="material-icons text-4xl text-rose-500"
+            >movie_filter</span
+          >
         </div>
-
         <h3 class="mt-6 text-xl font-bold">No recommendations yet</h3>
-
         <p class="mt-2 max-w-md text-sm leading-6 text-zinc-400">
           Try another genre or year. Rating movies, adding titles to your
           watchlist, and viewing movies will also help personalize your
           recommendations.
         </p>
-
         <button
           z-button
           type="button"
@@ -261,7 +279,7 @@
         </button>
       </section>
 
-      <!-- Infinite scroll trigger -->
+      <!-- Infinite-scroll trigger -->
       <div
         *ngIf="recommendations().length && hasMore()"
         class="mt-10 flex min-h-16 items-center justify-center"
@@ -276,12 +294,10 @@
           <span
             class="size-5 animate-spin rounded-full border-2 border-zinc-700 border-t-rose-600"
           ></span>
-
           Finding more movies...
         </div>
       </div>
 
-      <!-- End of results -->
       <p
         *ngIf="recommendations().length && !hasMore()"
         class="mt-10 text-center text-xs text-zinc-500"

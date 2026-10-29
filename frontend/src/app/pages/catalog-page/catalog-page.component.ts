@@ -21,6 +21,7 @@ import { ObserveVisibleDirective } from "@/shared/directives/observe-visible.dir
 import { ZardBadgeComponent } from "@/shared/components/badge/badge.component";
 import { ZardButtonComponent } from "@/shared/components/button/button.component";
 import { ZardCardImports } from "@/shared/components/card/card.imports";
+import { MoviesSliderComponent } from "@/shared/components/movies-slider/movies-slider.component";
 
 @Component({
   selector: "app-catalog-page",
@@ -29,9 +30,9 @@ import { ZardCardImports } from "@/shared/components/card/card.imports";
     CommonModule,
     RouterLink,
     ObserveVisibleDirective,
-    ZardBadgeComponent,
     ZardButtonComponent,
     ZardCardImports,
+    MoviesSliderComponent
   ],
   templateUrl: "./catalog-page.component.html",
 })
@@ -39,28 +40,22 @@ export class CatalogPageComponent implements OnInit {
   private readonly movieService = inject(MovieService);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** First page of movies, used for the featured hero and empty state. */
   readonly movies = signal<Movie[]>([]);
 
   readonly genres = signal<string[]>([]);
 
-  /** Movies loaded for each individual genre. */
   readonly genreMovies = signal<Record<string, Movie[]>>({});
 
-  /** Current zero-based page loaded for each genre. */
   readonly genrePages = signal<Record<string, number>>({});
 
-  /** Whether additional pages exist for each genre. */
   readonly genreHasMore = signal<Record<string, boolean>>({});
 
-  /** Loading state for each genre, independent of other rows. */
   readonly genreLoadingByGenre = signal<Record<string, boolean>>({});
 
   readonly loading = signal(false);
   readonly error = signal("");
   readonly brokenPosters = signal(new Set<string>());
 
-  /** Page size for genre-specific infinite scrolling. */
   readonly size = 20;
 
   ngOnInit(): void {
@@ -68,9 +63,6 @@ export class CatalogPageComponent implements OnInit {
     this.loadMovies();
   }
 
-  /**
-   * Load genres, then load the first page of movies for each genre.
-   */
   private loadGenres(): void {
     this.movieService
       .getGenres()
@@ -94,12 +86,6 @@ export class CatalogPageComponent implements OnInit {
       });
   }
 
-  /**
-   * Load one page for one genre.
-   *
-   * Page zero replaces the genre's current list.
-   * Later pages append unique movies to that list.
-   */
   private loadGenrePage(genre: string, page: number): void {
     if (this.isGenreLoading(genre)) {
       return;
