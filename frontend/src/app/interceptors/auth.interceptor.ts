@@ -11,7 +11,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const token = authService.getAccessToken();
 
-  const isBackendRequest = /^https?:\/\/localhost(:\d+)?\//.test(req.url);
+  const isBackendRequest = req.url.startsWith("/api/");
 
   const authenticatedRequest =
     token && isBackendRequest
