@@ -45,6 +45,10 @@ public class Movie {
     private String poster;
     private String url;
 
+    
+    @Relationship(type = "OWNS", direction = Relationship.Direction.INCOMING)
+    private User owner;
+
     @Relationship(type = "IN_GENRE", direction = Relationship.Direction.OUTGOING)
     private List<Genre> genres = new ArrayList<>();
 
