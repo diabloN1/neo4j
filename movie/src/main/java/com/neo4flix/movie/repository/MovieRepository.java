@@ -78,7 +78,12 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
               })
 
             RETURN m
-            ORDER BY m.imdbRating DESC, m.title ASC
+            
+            ORDER BY 
+                CASE WHEN m.imdbRating IS NULL THEN 1 ELSE 0 END ASC,
+                m.imdbRating * m.imdbVotes DESC,
+                m.title ASC
+            
             SKIP $skip
             LIMIT $limit
             """, countQuery = """
