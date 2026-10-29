@@ -1,23 +1,7 @@
+import { RatingAverageResponse, RatingResponse } from "@/models/rating.model";
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-
-export interface RatingRequest {
-  rating: number;
-}
-
-export interface RatingResponse {
-  movieId: string;
-  rating: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface RatingAverageResponse {
-  movieId: string;
-  averageRating: number;
-  ratingCount: number;
-}
 
 @Injectable({
   providedIn: "root",

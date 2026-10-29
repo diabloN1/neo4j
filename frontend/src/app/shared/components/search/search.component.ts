@@ -168,10 +168,10 @@ import { MovieService } from "../../../services/movie.service";
                 </p>
 
                 <p
-                  *ngIf="movie.genres?.length"
+                  *ngIf="movie.genreNames?.length"
                   class="mt-1 truncate text-xs text-zinc-500"
                 >
-                  {{ movie.genres!.slice(0, 3).join(" · ") }}
+                  {{ movie.genreNames!.slice(0, 3).join(" · ") }}
                 </p>
               </div>
 

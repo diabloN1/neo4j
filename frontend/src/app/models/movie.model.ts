@@ -9,9 +9,9 @@ export interface Movie {
   imdbRating?: number | null;
   released?: string | null;
   runtime?: number | null;
-  genres?: string[];
-  actors?: string[];
-  directors?: string[];
+  genreNames?: string[];
+  actorNames?: string[];
+  directorNames?: string[];
 }
 
 /** Spring Data Page-like response or the project's custom MoviePage DTO. */

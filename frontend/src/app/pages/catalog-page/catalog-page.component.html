@@ -92,11 +92,11 @@
 
           <!-- Featured genres -->
           <div
-            *ngIf="movies()[0].genres?.length"
+            *ngIf="movies()[0].genreNames?.length"
             class="mt-4 flex flex-wrap gap-2"
           >
             <z-badge
-              *ngFor="let genre of (movies()[0].genres || []).slice(0, 3)"
+              *ngFor="let genre of (movies()[0].genreNames || []).slice(0, 3)"
               zType="secondary"
               class="border-white/10 bg-white/10 text-zinc-100"
             >

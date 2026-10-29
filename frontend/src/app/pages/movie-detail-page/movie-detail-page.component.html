@@ -105,9 +105,9 @@
             </div>
 
             <!-- Genres -->
-            <div *ngIf="item.genres?.length" class="mt-5 flex flex-wrap gap-2">
+            <div *ngIf="item.genreNames?.length" class="mt-5 flex flex-wrap gap-2">
               <z-badge
-                *ngFor="let genre of item.genres"
+                *ngFor="let genre of item.genreNames"
                 zType="secondary"
                 class="border-white/10 bg-white/10 text-zinc-200"
               >
@@ -197,25 +197,25 @@
             <p class="mt-2 text-sm text-zinc-200">{{ item.released }}</p>
           </div>
 
-          <div *ngIf="item.directors?.length">
+          <div *ngIf="item.directorNames?.length">
             <p
               class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500"
             >
               Director
             </p>
             <p class="mt-2 text-sm leading-6 text-zinc-200">
-              {{ item.directors!.join(", ") }}
+              {{ item.directorNames!.join(", ") }}
             </p>
           </div>
 
-          <div *ngIf="item.actors?.length">
+          <div *ngIf="item.actorNames?.length">
             <p
               class="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500"
             >
               Cast
             </p>
             <p class="mt-2 text-sm leading-7 text-zinc-200">
-              {{ item.actors!.slice(0, 10).join(", ") }}
+              {{ item.actorNames!.slice(0, 10).join(", ") }}
             </p>
           </div>
         </div>
@@ -309,7 +309,7 @@
               <span class="block font-medium">Vidy</span>
               <span class="text-sm text-muted-foreground">Player 1</span>
             </span>
-              <span class="material-icons">play_arrow</span>
+            <span class="material-icons">play_arrow</span>
           </button>
 
           <button
@@ -321,7 +321,7 @@
               <span class="block font-medium">Vidrift</span>
               <span class="text-sm text-muted-foreground">Player 2</span>
             </span>
-              <span class="material-icons">play_arrow</span>
+            <span class="material-icons">play_arrow</span>
           </button>
         </div>
 

@@ -18,21 +18,7 @@ export class MovieService {
     if (query.genre) params = params.set("genre", query.genre);
     if (query.year) params = params.set("year", query.year);
 
-    return this.http
-      .get<MoviePage | Movie[]>(this.apiUrl, { params })
-      .pipe(
-        map((response) =>
-          Array.isArray(response)
-            ? {
-                content: response,
-                totalPages: 1,
-                totalElements: response.length,
-                number: query.page,
-                size: query.size,
-              }
-            : response,
-        ),
-      );
+    return this.http.get<MoviePage>(this.apiUrl, { params });
   }
 
   getGenres(): Observable<string[]> {
