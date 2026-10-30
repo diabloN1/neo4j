@@ -253,4 +253,11 @@ export class CatalogPageComponent implements OnInit {
       return updated;
     });
   }
+
+  scrollMovies(element: HTMLElement, direction: number): void {
+    element.scrollBy({
+      left: direction * element.clientWidth * 0.9,
+      behavior: 'smooth'
+    });
+  }
 }

@@ -99,74 +99,106 @@
           </div>
 
           <!-- Horizontal movie row -->
-          <div
-            class="flex gap-4 overflow-x-auto overflow-y-hidden pb-4"
-          >
-            <article
-              *ngFor="let movie of moviesForGenre(category); let i = index"
-              class="group w-[155px] flex-none sm:w-[195px] lg:w-[220px]"
-              [appObserveVisible]="
-              i === moviesForGenre(category).length - 3 &&
-                hasMoreGenreMovies(category) &&
-                !isGenreLoading(category)"
-              (visible)="
-                i === moviesForGenre(category).length - 3 &&
-                  loadMoreGenreMovies(category)
-              "
+          <div class="group/slider relative">
+
+            <!-- Left scroll -->
+            <button
+              type="button"
+              (click)="scrollMovies(movieRow, -1)"
+              class="absolute left-0 top-0 z-10 flex h-full w-10
+                    items-center justify-center bg-black/70 text-white
+                    opacity-0 transition-opacity duration-300
+                    group-hover/slider:opacity-100"
+              aria-label="Scroll movies left"
             >
-              <a [routerLink]="['/movies', movie.movieId]" class="block">
-                <!-- Poster -->
-                <div
-                  class="relative aspect-[2/3] overflow-hidden rounded-lg bg-neutral-900"
-                >
-                  <img
-                    *ngIf="movie.poster && !brokenPosters().has(movie.title)"
-                    [src]="movie.poster"
-                    [alt]="movie.title"
-                    loading="lazy"
-                    (error)="markPosterBroken(movie.title)"
-                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
+              <span class="material-icons text-3xl">chevron_left</span>
+            </button>
+
+            <!-- Movie cards -->
+            <div
+              #movieRow
+              class="flex gap-4 overflow-x-auto overflow-y-hidden
+                    scroll-smooth pb-4"
+            >
+              <article
+                *ngFor="let movie of moviesForGenre(category); let i = index"
+                class="group w-[155px] flex-none sm:w-[195px] lg:w-[220px]"
+                [appObserveVisible]="
+                  i === moviesForGenre(category).length - 3 &&
+                  hasMoreGenreMovies(category) &&
+                  !isGenreLoading(category)
+                "
+                (visible)="
+                  i === moviesForGenre(category).length - 3 &&
+                  loadMoreGenreMovies(category)
+                "
+              >
+                <a [routerLink]="['/movies', movie.movieId]" class="block">
 
                   <div
-                    *ngIf="!movie.poster || brokenPosters().has(movie.title)"
-                    class="flex h-full items-center justify-center p-4 text-center text-neutral-500"
+                    class="relative aspect-[2/3] overflow-hidden rounded-lg bg-neutral-900"
+                  >
+                    <img
+                      *ngIf="movie.poster && !brokenPosters().has(movie.title)"
+                      [src]="movie.poster"
+                      [alt]="movie.title"
+                      loading="lazy"
+                      (error)="markPosterBroken(movie.title)"
+                      class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+
+                    <div
+                      *ngIf="!movie.poster || brokenPosters().has(movie.title)"
+                      class="flex h-full items-center justify-center p-4 text-center text-neutral-500"
+                    >
+                      {{ movie.title }}
+                    </div>
+
+                    <div
+                      class="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/40"
+                    >
+                      <span
+                        class="flex h-12 w-12 items-center justify-center rounded-full bg-white text-black opacity-0 transition-opacity group-hover:opacity-100"
+                      >
+                        <span class="material-icons">play_arrow</span>
+                      </span>
+                    </div>
+
+                    <div
+                      *ngIf="movie.imdbRating != null"
+                      class="absolute left-2 top-2 rounded bg-black/80 px-2 py-1 text-xs font-semibold text-yellow-400"
+                    >
+                      ★ {{ movie.imdbRating }}
+                    </div>
+                  </div>
+
+                  <h3
+                    class="mt-3 truncate font-semibold text-white transition-colors group-hover:text-rose-400"
                   >
                     {{ movie.title }}
-                  </div>
+                  </h3>
 
-                  <!-- Hover play button -->
-                  <div
-                    class="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/40"
-                  >
-                    <span
-                      class="flex h-12 w-12 items-center justify-center rounded-full bg-white text-black opacity-0 transition-opacity group-hover:opacity-100"
-                    >
-                      <span class="material-icons">play_arrow</span>
-                    </span>
-                  </div>
+                  <p class="mt-1 text-sm text-neutral-400">
+                    {{ movie.year }}
+                  </p>
 
-                  <!-- IMDb rating -->
-                  <div
-                    *ngIf="movie.imdbRating != null"
-                    class="absolute left-2 top-2 rounded bg-black/80 px-2 py-1 text-xs font-semibold text-yellow-400"
-                  >
-                    ★ {{ movie.imdbRating }}
-                  </div>
-                </div>
+                </a>
+              </article>
+            </div>
 
-                <!-- Movie details -->
-                <h3
-                  class="mt-3 truncate font-semibold text-white transition-colors group-hover:text-rose-400"
-                >
-                  {{ movie.title }}
-                </h3>
+            <!-- Right scroll -->
+            <button
+              type="button"
+              (click)="scrollMovies(movieRow, 1)"
+              class="absolute right-0 top-0 z-10 flex h-full w-10
+                    items-center justify-center bg-black/70 text-white
+                    opacity-0 transition-opacity duration-300
+                    group-hover/slider:opacity-100"
+              aria-label="Scroll movies right"
+            >
+              <span class="material-icons text-3xl">chevron_right</span>
+            </button>
 
-                <p class="mt-1 text-sm text-neutral-400">
-                  {{ movie.year }}
-                </p>
-              </a>
-            </article>
           </div>
 
           <!-- Loading indicator for this genre only -->
