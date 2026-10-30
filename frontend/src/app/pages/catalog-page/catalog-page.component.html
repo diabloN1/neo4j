@@ -99,15 +99,16 @@
           </div>
 
           <!-- Horizontal movie row -->
-          <div class="flex gap-4 overflow-x-auto pb-4">
+          <div
+            class="flex gap-4 overflow-x-auto overflow-y-hidden pb-4"
+          >
             <article
               *ngFor="let movie of moviesForGenre(category); let i = index"
               class="group w-[155px] flex-none sm:w-[195px] lg:w-[220px]"
               [appObserveVisible]="
-                i === moviesForGenre(category).length - 3 &&
+              i === moviesForGenre(category).length - 3 &&
                 hasMoreGenreMovies(category) &&
-                !isGenreLoading(category)
-              "
+                !isGenreLoading(category)"
               (visible)="
                 i === moviesForGenre(category).length - 3 &&
                   loadMoreGenreMovies(category)
