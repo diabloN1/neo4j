@@ -1,4 +1,5 @@
 import { Routes } from "@angular/router";
+import { authGuard } from "./guards/auth.guard";
 
 export const routes: Routes = [
   {
@@ -37,7 +38,14 @@ export const routes: Routes = [
         (m) => m.MovieDetailPageComponent,
       ),
   },
-
+  {
+    path: "profile",
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import("./pages/profile-page/profile-page.component").then(
+        (m) => m.ProfilePageComponent,
+      ),
+  },
   {
     path: "my-movies",
     loadComponent: () =>
