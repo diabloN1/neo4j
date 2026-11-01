@@ -159,4 +159,14 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
                         @Param("languages") Collection<String> languages,
                         @Param("poster") String poster);
 
+        @Query("""
+                        MATCH (u:User)-[:OWNS]->(m:Movie {movieId: $movieId})
+                        WHERE id(u) = $userId
+                        DETACH DELETE m
+                        RETURN true AS deleted
+                        """)
+        Optional<Boolean> deleteOwnedMovie(
+                        @Param("userId") Long userId,
+                        @Param("movieId") String movieId);
+
 }
