@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import com.neo4flix.common.entity.Movie;
 import com.neo4flix.movie.dto.MovieDetails;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MovieRepository extends Neo4jRepository<Movie, Long> {
@@ -106,5 +107,8 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
                         @Param("genre") String genre,
                         @Param("year") Integer year,
                         Pageable pageable);
+
+        @Query("MATCH (g:Genre) WHERE g.name IS NOT NULL RETURN DISTINCT g.name AS name ORDER BY name")
+        List<String> findAllGenreNames();
 
 }
