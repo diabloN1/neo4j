@@ -34,7 +34,6 @@ export interface MovieWriteRequest {
   directors: string[];
 }
 
-/** Spring Data Page-like response or the project's custom MoviePage DTO. */
 export interface MoviePage {
   content?: Movie[];
   movies?: Movie[];
