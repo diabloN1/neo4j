@@ -192,4 +192,73 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
                         """)
         List<MovieDetails> findOwnedMovies(@Param("userId") Long userId);
 
+        @Query("""
+                        MATCH (u:User)-[:OWNS]->(m:Movie {movieId: $movieId})
+                        WHERE id(u) = $userId
+                        OPTIONAL MATCH (m)-[r:IN_GENRE]->()
+                        DELETE r
+                        RETURN count(r)
+                        """)
+        void clearOwnedGenres(@Param("userId") Long userId, @Param("movieId") String movieId);
+
+        @Query("""
+                        MATCH (u:User)-[:OWNS]->(m:Movie {movieId: $movieId})
+                        WHERE id(u) = $userId
+                        UNWIND $genres AS genreName
+                        MATCH (g:Genre) WHERE toLower(trim(g.name)) = toLower(trim(genreName))
+                        MERGE (m)-[:IN_GENRE]->(g)
+                        """)
+        void syncOwnedGenres(
+                        @Param("userId") Long userId,
+                        @Param("movieId") String movieId,
+                        @Param("genres") Collection<String> genres);
+
+        @Query("""
+                        MATCH (u:User)-[:OWNS]->(m:Movie {movieId: $movieId})
+                        WHERE id(u) = $userId
+                        OPTIONAL MATCH (m)-[r:ACTED_IN]-()
+                        DELETE r
+                        RETURN count(r)
+                        """)
+        void clearOwnedActors(@Param("userId") Long userId, @Param("movieId") String movieId);
+
+        @Query("""
+                        MATCH (u:User)-[:OWNS]->(m:Movie {movieId: $movieId})
+                        WHERE id(u) = $userId
+                        UNWIND $actors AS actorName
+                        WITH m, trim(actorName) AS cleanName
+                        OPTIONAL MATCH (existing:Actor) WHERE toLower(trim(existing.name)) = toLower(cleanName)
+                        WITH m, coalesce(existing.name, cleanName) AS finalName
+                        MERGE (a:Actor {name: finalName})
+                        MERGE (a)-[:ACTED_IN]->(m)
+                        """)
+        void syncOwnedActors(
+                        @Param("userId") Long userId,
+                        @Param("movieId") String movieId,
+                        @Param("actors") Collection<String> actors);
+
+        @Query("""
+                        MATCH (u:User)-[:OWNS]->(m:Movie {movieId: $movieId})
+                        WHERE id(u) = $userId
+                        OPTIONAL MATCH (m)-[r:DIRECTED]-()
+                        DELETE r
+                        RETURN count(r)
+                        """)
+        void clearOwnedDirectors(@Param("userId") Long userId, @Param("movieId") String movieId);
+
+        @Query("""
+                        MATCH (u:User)-[:OWNS]->(m:Movie {movieId: $movieId})
+                        WHERE id(u) = $userId
+                        UNWIND $directors AS directorName
+                        WITH m, trim(directorName) AS cleanName
+                        OPTIONAL MATCH (existing:Director) WHERE toLower(trim(existing.name)) = toLower(cleanName)
+                        WITH m, coalesce(existing.name, cleanName) AS finalName
+                        MERGE (d:Director {name: finalName})
+                        MERGE (d)-[:DIRECTED]->(m)
+                        """)
+        void syncOwnedDirectors(
+                        @Param("userId") Long userId,
+                        @Param("movieId") String movieId,
+                        @Param("directors") Collection<String> directors);
+
 }
