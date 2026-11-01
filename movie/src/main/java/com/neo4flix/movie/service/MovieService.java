@@ -172,6 +172,12 @@ public class MovieService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<MovieDetails> findOwnedMovies(Long userId) {
+        Long validUserId = requireUserId(userId);
+        return repository.findOwnedMovies(validUserId);
+    }
+
     // Helpers
     private String normalize(String value) {
         return value == null || value.isBlank()
