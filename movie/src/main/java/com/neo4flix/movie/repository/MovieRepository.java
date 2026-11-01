@@ -33,4 +33,33 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
                         """)
         Optional<MovieDetails> findByMovieId(@Param("movieId") String movieId);
 
+        @Query("""
+                        MATCH (m:Movie {movieId: $movieId})
+                        MATCH (u:User) WHERE id(u) = $userId
+
+                        MERGE (u)-[v:VIEWED]->(m)
+                        ON CREATE SET v.count = 1, v.lastViewedAt = datetime()
+                        ON MATCH SET v.count = coalesce(v.count, 0) + 1, v.lastViewedAt = datetime()
+
+                        CALL (m) {
+                            OPTIONAL MATCH (m)-[:IN_GENRE]->(g:Genre)
+                            RETURN collect(g.name) AS genreNames
+                        }
+
+                        CALL (m) {
+                            OPTIONAL MATCH (a:Actor)-[:ACTED_IN]->(m)
+                            RETURN collect(a.name) AS actorNames
+                        }
+
+                        CALL (m) {
+                            OPTIONAL MATCH (d:Director)-[:DIRECTED]->(m)
+                            RETURN collect(d.name) AS directorNames
+                        }
+
+                        RETURN m, genreNames, actorNames, directorNames
+                        """)
+        Optional<MovieDetails> findAndRecordView(
+                        @Param("movieId") String movieId,
+                        @Param("userId") Long userId);
+
 }
