@@ -8,12 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.neo4flix.common.entity.User;
-import com.neo4flix.user.exception.UnauthorizedException;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -24,7 +21,6 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secret;
 
-
     private static final long ACCESS_TOKEN_EXPIRATION = Duration.ofDays(7).toMillis();
 
     private SecretKey getSigningKey() {
@@ -34,6 +30,7 @@ public class JwtService {
     public String generateAccessToken(User user) {
         return Jwts.builder()
                 .subject(user.getEmail())
+                .claim("userId", user.getId())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
                 .signWith(getSigningKey(), Jwts.SIG.HS384)
