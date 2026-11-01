@@ -3,15 +3,35 @@ export interface Movie {
   title: string;
   year?: number | null;
   tagline?: string | null;
-  plot?: string | null;
   poster?: string | null;
   tmdbId?: string | null;
   imdbRating?: number | null;
-  released?: string | null;
   runtime?: number | null;
   genreNames?: string[];
   actorNames?: string[];
   directorNames?: string[];
+  released?: string | null;
+  plot?: string | null;
+  budget?: number | null;
+  revenue?: number | null;
+  countries?: string[];
+  languages?: string[];
+}
+
+export interface MovieWriteRequest {
+  title: string;
+  year: number | null;
+  released: string | null;
+  plot: string | null;
+  budget: number | null;
+  revenue: number | null;
+  runtime: number | null;
+  countries: string[];
+  languages: string[];
+  poster: string | null;
+  genres: string[];
+  actors: string[];
+  directors: string[];
 }
 
 /** Spring Data Page-like response or the project's custom MoviePage DTO. */
