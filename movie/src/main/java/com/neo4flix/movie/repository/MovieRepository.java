@@ -66,6 +66,14 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
                         @Param("movieId") String movieId,
                         @Param("userId") Long userId);
 
+        @Query("""
+                        MATCH (:Movie)-[:IN_GENRE]->(g:Genre)
+                        WHERE g.name IS NOT NULL
+                        RETURN DISTINCT g.name AS name
+                        ORDER BY name
+                        """)
+        List<String> findGenreNames();
+
         @Query(value = """
                         MATCH (m:Movie)
                         WHERE ($search IS NULL OR
