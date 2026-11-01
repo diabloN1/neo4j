@@ -37,6 +37,14 @@ export const routes: Routes = [
         (m) => m.MovieDetailPageComponent,
       ),
   },
+
+  {
+    path: "my-movies",
+    loadComponent: () =>
+      import("./pages/my-movies-page/my-movies-page.component").then(
+        (m) => m.MyMoviesPageComponent,
+      ),
+  },
   {
     path: "recommendations",
     loadComponent: () =>
