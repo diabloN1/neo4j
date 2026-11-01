@@ -181,4 +181,15 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
                         @Param("userId") Long userId,
                         @Param("movieId") String movieId);
 
+        @Query("""
+                        MATCH (u:User)-[:OWNS]->(m:Movie)
+                        WHERE id(u) = $userId
+                        CALL (m) { OPTIONAL MATCH (m)-[:IN_GENRE]->(g:Genre) RETURN collect(g.name) AS genreNames }
+                        CALL (m) { OPTIONAL MATCH (a:Actor)-[:ACTED_IN]->(m) RETURN collect(a.name) AS actorNames }
+                        CALL (m) { OPTIONAL MATCH (d:Director)-[:DIRECTED]->(m) RETURN collect(d.name) AS directorNames }
+                        RETURN m, genreNames, actorNames, directorNames
+                        ORDER BY m.year DESC, m.title ASC
+                        """)
+        List<MovieDetails> findOwnedMovies(@Param("userId") Long userId);
+
 }
