@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import com.neo4flix.common.entity.Movie;
 import com.neo4flix.movie.dto.MovieDetails;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,5 +111,29 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
 
         @Query("MATCH (g:Genre) WHERE g.name IS NOT NULL RETURN DISTINCT g.name AS name ORDER BY name")
         List<String> findAllGenreNames();
+
+        @Query("""
+                        MATCH (u:User) WHERE id(u) = $userId
+                        CREATE (m:Movie {
+                            movieId: $movieId, title: $title, year: $year, released: $released,
+                            plot: $plot, budget: $budget, revenue: $revenue, runtime: $runtime,
+                            countries: $countries, languages: $languages, poster: $poster
+                        })
+                        CREATE (u)-[:OWNS]->(m)
+                        RETURN m.movieId AS movieId
+                        """)
+        Optional<String> createOwnedMovie(
+                        @Param("userId") Long userId,
+                        @Param("movieId") String movieId,
+                        @Param("title") String title,
+                        @Param("year") Integer year,
+                        @Param("released") String released,
+                        @Param("plot") String plot,
+                        @Param("budget") Long budget,
+                        @Param("revenue") Long revenue,
+                        @Param("runtime") Integer runtime,
+                        @Param("countries") Collection<String> countries,
+                        @Param("languages") Collection<String> languages,
+                        @Param("poster") String poster);
 
 }
