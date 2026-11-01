@@ -1,0 +1,529 @@
+<main class="min-h-screen bg-[#0d0d0f] text-zinc-100">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Top Header -->
+    <header
+      class="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-800/80 pb-6"
+    >
+      <div>
+        <span
+          class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-rose-500"
+        >
+          <span
+            class="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse"
+          ></span>
+          Personal Collection
+        </span>
+        <h1
+          class="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl text-white"
+        >
+          My Movies
+        </h1>
+        <p class="mt-2 text-sm text-zinc-400">
+          Manage, edit, or add custom entries to your personal movie catalog.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        (click)="openCreate()"
+        class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-950/40 transition-all hover:from-rose-500 hover:to-rose-600 active:scale-[0.98]"
+      >
+        <svg
+          class="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Add a movie
+      </button>
+    </header>
+
+    <div
+      *ngIf="error()"
+      role="alert"
+      class="mb-6 flex items-center justify-between rounded-xl border border-rose-500/20 bg-rose-950/30 p-4 text-sm text-rose-300 backdrop-blur-md"
+    >
+      <div class="flex items-center gap-3">
+        <svg
+          class="h-5 w-5 text-rose-400 shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span>{{ error() }}</span>
+        <a
+          *ngIf="!authService.isAuthenticated()"
+          routerLink="/login"
+          class="font-semibold underline ml-2 hover:text-white"
+          >Log in</a
+        >
+      </div>
+      <button
+        (click)="error.set('')"
+        class="text-rose-400 hover:text-white text-lg leading-none"
+      >
+        &times;
+      </button>
+    </div>
+
+    <div
+      *ngIf="success()"
+      role="status"
+      class="mb-6 flex items-center justify-between rounded-xl border border-emerald-500/20 bg-emerald-950/30 p-4 text-sm text-emerald-300 backdrop-blur-md"
+    >
+      <div class="flex items-center gap-3">
+        <svg
+          class="h-5 w-5 text-emerald-400 shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+        <span>{{ success() }}</span>
+      </div>
+      <button
+        (click)="success.set('')"
+        class="text-emerald-400 hover:text-white text-lg leading-none"
+      >
+        &times;
+      </button>
+    </div>
+
+    <!-- Collection Grid / States -->
+    <section>
+      <div class="mb-6 flex items-center justify-between">
+        <h2 class="text-lg font-bold text-zinc-200">Manage Titles</h2>
+        <span
+          class="rounded-full bg-zinc-800/80 px-3 py-1 text-xs font-medium text-zinc-400 border border-zinc-700/50"
+        >
+          {{ movies().length }} {{ movies().length === 1 ? "Movie" : "Movies" }}
+        </span>
+      </div>
+
+      <!-- Loading Skeleton -->
+      <div *ngIf="loading()" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          *ngFor="let i of [1, 2, 3]"
+          class="animate-pulse flex gap-4 rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-4"
+        >
+          <div class="h-36 w-24 rounded-xl bg-zinc-800 shrink-0"></div>
+          <div class="flex-1 space-y-3 py-2">
+            <div class="h-5 bg-zinc-800 rounded w-3/4"></div>
+            <div class="h-3 bg-zinc-800 rounded w-1/4"></div>
+            <div class="h-3 bg-zinc-800 rounded w-full"></div>
+            <div class="h-3 bg-zinc-800 rounded w-2/3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div
+        *ngIf="!loading() && !movies().length"
+        class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/20 px-6 py-16 text-center"
+      >
+        <div
+          class="flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-800/50 text-zinc-500 mb-4 border border-zinc-700/40"
+        >
+          <svg
+            class="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
+            />
+          </svg>
+        </div>
+        <h3 class="text-base font-bold text-zinc-200">
+          No movies found in your collection
+        </h3>
+        <p class="mx-auto mt-1 max-w-sm text-sm text-zinc-400">
+          Click the button below to add your first custom movie node to the
+          graph.
+        </p>
+        <button
+          type="button"
+          (click)="openCreate()"
+          class="mt-5 rounded-lg bg-zinc-800 hover:bg-zinc-700 px-4 py-2 text-sm font-semibold text-white transition"
+        >
+          + Add your first movie
+        </button>
+      </div>
+
+      <!-- Cards Grid -->
+      <div
+        *ngIf="!loading() && movies().length"
+        class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      >
+        <article
+          *ngFor="let movie of movies()"
+          class="group flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/50 hover:bg-zinc-900/90 hover:border-zinc-700/80 transition-all duration-200 hover:shadow-xl hover:shadow-black/60"
+        >
+          <div class="flex gap-4 p-4">
+            <!-- Poster Thumbnail -->
+            <div
+              class="relative h-36 w-24 shrink-0 overflow-hidden rounded-xl bg-zinc-800 border border-zinc-700/40"
+            >
+              <img
+                *ngIf="movie.poster"
+                [src]="movie.poster"
+                [alt]="movie.title"
+                referrerpolicy="no-referrer"
+                (error)="onImageError($event)"
+                class="relative z-10 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                loading="lazy"
+              />
+
+              <div
+                class="absolute inset-0 flex items-center justify-center bg-zinc-900 text-rose-500 font-black text-2xl select-none"
+              >
+                {{ movie.title ? movie.title.charAt(0).toUpperCase() : "N" }}
+              </div>
+            </div>
+
+            <div class="min-w-0 flex-1">
+              <a
+                [routerLink]="['/movies', movie.movieId]"
+                class="font-bold text-white transition hover:text-rose-400 line-clamp-1"
+              >
+                {{ movie.title }}
+              </a>
+              <div class="mt-1 flex items-center gap-2 text-xs text-zinc-400">
+                <span>{{ movie.year || "N/A" }}</span>
+                <span
+                  *ngIf="movie.runtime"
+                  class="h-1 w-1 rounded-full bg-zinc-600"
+                ></span>
+                <span *ngIf="movie.runtime">{{ movie.runtime }}m</span>
+              </div>
+              <p
+                class="mt-2 line-clamp-3 text-xs leading-relaxed text-zinc-400"
+              >
+                {{ movie.plot || "No plot summary provided." }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Bottom Actions -->
+          <div
+            class="flex items-center gap-2 border-t border-zinc-800/70 bg-zinc-950/40 p-3"
+          >
+            <button
+              type="button"
+              (click)="openEdit(movie)"
+              class="flex-1 rounded-lg border border-zinc-700/60 bg-zinc-800/40 py-2 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white transition"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              (click)="deleteMovie(movie)"
+              [disabled]="deletingId() === movie.movieId"
+              class="flex-1 rounded-lg border border-rose-500/20 bg-rose-500/10 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-500/20 hover:text-rose-200 transition disabled:opacity-50"
+            >
+              {{ deletingId() === movie.movieId ? "Deleting..." : "Delete" }}
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== MODAL OVERLAY ==================== -->
+  <div
+    *ngIf="isFormOpen()"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 animate-in fade-in duration-200"
+  >
+    <!-- Backdrop Blur with Click-to-Close -->
+    <div
+      (click)="closeModal()"
+      class="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
+    ></div>
+
+    <!-- Modal Box Content -->
+    <div
+      class="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border border-zinc-700/60 bg-[#16161a] shadow-2xl shadow-black z-10 overflow-hidden"
+    >
+      <!-- Modal Header -->
+      <div
+        class="flex items-center justify-between border-b border-zinc-800/80 px-6 py-4 bg-zinc-900/50"
+      >
+        <div>
+          <h2 class="text-lg font-bold text-white">
+            {{ editingId() ? "Edit Movie" : "Create New Movie" }}
+          </h2>
+          <p class="text-xs text-zinc-400">
+            Fill in properties and connect graph relationships.
+          </p>
+        </div>
+        <button
+          (click)="closeModal()"
+          class="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white transition"
+        >
+          <svg
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Scrollable Form Body -->
+      <form
+        (ngSubmit)="submit()"
+        #movieForm="ngForm"
+        class="overflow-y-auto px-6 py-5 space-y-6"
+      >
+        <!-- General Information -->
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label
+            class="grid gap-1.5 text-xs font-semibold text-zinc-300 sm:col-span-2"
+          >
+            <span>Title <span class="text-rose-500">*</span></span>
+            <input
+              name="title"
+              [(ngModel)]="form.title"
+              required
+              maxlength="250"
+              placeholder="e.g. Inception"
+              class="h-10 rounded-lg border border-zinc-700/60 bg-zinc-900/80 px-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+            />
+          </label>
+
+          <label class="grid gap-1.5 text-xs font-semibold text-zinc-300">
+            <span>Year</span>
+            <input
+              name="year"
+              type="number"
+              min="1888"
+              max="3000"
+              [(ngModel)]="form.year"
+              placeholder="2026"
+              class="h-10 rounded-lg border border-zinc-700/60 bg-zinc-900/80 px-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+            />
+          </label>
+
+          <label class="grid gap-1.5 text-xs font-semibold text-zinc-300">
+            <span>Release Date</span>
+            <input
+              name="released"
+              [(ngModel)]="form.released"
+              placeholder="YYYY-MM-DD"
+              class="h-10 rounded-lg border border-zinc-700/60 bg-zinc-900/80 px-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+            />
+          </label>
+
+          <label class="grid gap-1.5 text-xs font-semibold text-zinc-300">
+            <span>Runtime (mins)</span>
+            <input
+              name="runtime"
+              type="number"
+              min="0"
+              [(ngModel)]="form.runtime"
+              placeholder="120"
+              class="h-10 rounded-lg border border-zinc-700/60 bg-zinc-900/80 px-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+            />
+          </label>
+
+          <label class="grid gap-1.5 text-xs font-semibold text-zinc-300">
+            <span>Poster Image URL</span>
+            <input
+              name="poster"
+              type="url"
+              [(ngModel)]="form.poster"
+              placeholder="https://..."
+              class="h-10 rounded-lg border border-zinc-700/60 bg-zinc-900/80 px-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+            />
+          </label>
+        </div>
+
+        <!-- Genres Picker -->
+        <div class="space-y-2">
+          <label class="text-xs font-semibold text-zinc-300"
+            >Genres (Existing Nodes)</label
+          >
+          <div
+            class="grid max-h-36 grid-cols-2 gap-2 overflow-y-auto rounded-xl border border-zinc-700/60 bg-zinc-900/80 p-3 sm:grid-cols-3"
+          >
+            <label
+              *ngFor="let genre of genres()"
+              class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs hover:bg-zinc-800 transition"
+            >
+              <input
+                type="checkbox"
+                [name]="'genre-' + genre"
+                [checked]="form.genres.includes(genre)"
+                (change)="toggleGenre(genre, $any($event.target).checked)"
+                class="h-4 w-4 rounded border-zinc-600 bg-zinc-800 accent-rose-600"
+              />
+              <span class="text-zinc-200">{{ genre }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Actors Tag Input -->
+        <div class="space-y-2">
+          <label class="text-xs font-semibold text-zinc-300"
+            >Actors (:Actor Nodes)</label
+          >
+          <div
+            class="flex flex-wrap gap-1.5 min-h-[32px] p-2 rounded-xl border border-zinc-700/60 bg-zinc-900/80"
+          >
+            <span
+              *ngIf="!form.actors.length"
+              class="text-xs text-zinc-500 italic p-1"
+              >No actors added yet.</span
+            >
+            <span
+              *ngFor="let actor of form.actors"
+              class="inline-flex items-center gap-1 rounded-md bg-zinc-800 px-2.5 py-1 text-xs text-zinc-200 border border-zinc-700"
+            >
+              {{ actor }}
+              <button
+                type="button"
+                (click)="removeActor(actor)"
+                class="text-zinc-400 hover:text-rose-400"
+              >
+                &times;
+              </button>
+            </span>
+          </div>
+          <div class="flex gap-2">
+            <input
+              name="actorInput"
+              [(ngModel)]="actorInput"
+              (keydown.enter)="$event.preventDefault(); addActor()"
+              placeholder="Type an actor name and press Enter..."
+              class="h-9 flex-1 rounded-lg border border-zinc-700/60 bg-zinc-900/80 px-3 text-xs text-white placeholder-zinc-500 outline-none focus:border-rose-500"
+            />
+            <button
+              type="button"
+              (click)="addActor()"
+              class="rounded-lg bg-zinc-800 hover:bg-zinc-700 px-4 text-xs font-semibold text-white border border-zinc-700"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+
+        <!-- Directors Tag Input -->
+        <div class="space-y-2">
+          <label class="text-xs font-semibold text-zinc-300"
+            >Directors (:Director Nodes)</label
+          >
+          <div
+            class="flex flex-wrap gap-1.5 min-h-[32px] p-2 rounded-xl border border-zinc-700/60 bg-zinc-900/80"
+          >
+            <span
+              *ngIf="!form.directors.length"
+              class="text-xs text-zinc-500 italic p-1"
+              >No directors added yet.</span
+            >
+            <span
+              *ngFor="let director of form.directors"
+              class="inline-flex items-center gap-1 rounded-md bg-zinc-800 px-2.5 py-1 text-xs text-zinc-200 border border-zinc-700"
+            >
+              {{ director }}
+              <button
+                type="button"
+                (click)="removeDirector(director)"
+                class="text-zinc-400 hover:text-rose-400"
+              >
+                &times;
+              </button>
+            </span>
+          </div>
+          <div class="flex gap-2">
+            <input
+              name="directorInput"
+              [(ngModel)]="directorInput"
+              (keydown.enter)="$event.preventDefault(); addDirector()"
+              placeholder="Type a director name and press Enter..."
+              class="h-9 flex-1 rounded-lg border border-zinc-700/60 bg-zinc-900/80 px-3 text-xs text-white placeholder-zinc-500 outline-none focus:border-rose-500"
+            />
+            <button
+              type="button"
+              (click)="addDirector()"
+              class="rounded-lg bg-zinc-800 hover:bg-zinc-700 px-4 text-xs font-semibold text-white border border-zinc-700"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+
+        <!-- Plot Field -->
+        <label class="grid gap-1.5 text-xs font-semibold text-zinc-300">
+          <span>Plot Summary</span>
+          <textarea
+            name="plot"
+            [(ngModel)]="form.plot"
+            rows="3"
+            placeholder="Overview of the movie storyline..."
+            class="rounded-lg border border-zinc-700/60 bg-zinc-900/80 p-3 text-xs text-white placeholder-zinc-500 outline-none focus:border-rose-500"
+          ></textarea>
+        </label>
+      </form>
+
+      <!-- Modal Footer -->
+      <div
+        class="flex items-center justify-end gap-3 border-t border-zinc-800/80 bg-zinc-900/60 px-6 py-4"
+      >
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="rounded-lg border border-zinc-700 px-4 py-2 text-xs font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white transition"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="submit()"
+          [disabled]="
+            movieForm.invalid || saving() || !authService.isAuthenticated()
+          "
+          class="rounded-lg bg-rose-600 hover:bg-rose-500 px-5 py-2 text-xs font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {{
+            saving()
+              ? "Saving..."
+              : editingId()
+                ? "Save Changes"
+                : "Create Movie"
+          }}
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
