@@ -4,6 +4,7 @@ import com.neo4flix.common.entity.Movie;
 import com.neo4flix.movie.dto.MovieDetails;
 import com.neo4flix.movie.dto.MoviePage;
 import com.neo4flix.movie.dto.MovieSummary;
+import com.neo4flix.movie.dto.MovieWriteRequest;
 import com.neo4flix.movie.exception.MovieNotFoundException;
 import com.neo4flix.movie.repository.MovieRepository;
 
@@ -15,7 +16,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -78,9 +83,62 @@ public class MovieService {
                 movie.getPoster());
     }
 
+    @Transactional
+    public MovieDetails createOwnedMovie(Long userId, MovieWriteRequest request) {
+        Long validUserId = requireUserId(userId);
+        List<String> cleanGenres = cleanNames(request.genres());
+        validateGenresExist(cleanGenres);
+
+        String validatedPoster = mediaValidatorService.validatePosterUrl(request.poster());
+
+        String movieId = UUID.randomUUID().toString();
+
+        String createdId = repository.createOwnedMovie(
+                validUserId,
+                movieId,
+                request.title().trim(),
+                request.year(),
+                normalize(request.released()),
+                normalize(request.plot()),
+                request.budget(),
+                request.revenue(),
+                request.runtime(),
+                cleanNames(request.countries()),
+                cleanNames(request.languages()),
+                validatedPoster)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Authenticated user ID '" + validUserId + "' does not exist"));
+
+        attachRelationships(validUserId, createdId, cleanGenres, cleanNames(request.actors()),
+                cleanNames(request.directors()));
+
+        return getOwnedMovieDetails(validUserId, createdId);
+    }
+
     private String normalize(String value) {
         return value == null || value.isBlank()
                 ? null
                 : value.trim();
+    }
+
+    // Helpers
+
+    private MovieDetails getOwnedMovieDetails(Long userId, String movieId) {
+        return repository.findOwnedMovieDetails(userId, movieId)
+                .orElseThrow(() -> new MovieNotFoundException(movieId));
+    }
+
+    private List<String> cleanNames(List<String> values) {
+        if (values == null || values.isEmpty()) {
+            return List.of();
+        }
+        Map<String, String> unique = new LinkedHashMap<>();
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                String trimmed = value.trim();
+                unique.putIfAbsent(trimmed.toLowerCase(Locale.ROOT), trimmed);
+            }
+        }
+        return new ArrayList<>(unique.values());
     }
 }
