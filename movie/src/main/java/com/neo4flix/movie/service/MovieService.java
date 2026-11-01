@@ -158,6 +158,20 @@ public class MovieService {
         return getOwnedMovieDetails(validUserId, updatedId);
     }
 
+    @Transactional
+    public void deleteOwnedMovie(Long userId, String movieId) {
+        Long validUserId = requireUserId(userId);
+        if (movieId == null || movieId.isBlank()) {
+            throw new IllegalArgumentException("Movie ID cannot be empty");
+        }
+        String cleanMovieId = movieId.trim();
+
+        boolean deleted = repository.deleteOwnedMovie(validUserId, cleanMovieId).orElse(false);
+        if (!deleted) {
+            throw new MovieNotFoundException("Movie not found or not owned by user: " + cleanMovieId);
+        }
+    }
+
     // Helpers
     private String normalize(String value) {
         return value == null || value.isBlank()
