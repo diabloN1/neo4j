@@ -24,6 +24,10 @@ export class AuthService {
       .pipe(tap((response) => this.saveToken(response.accessToken)));
   }
 
+  updateAccessToken(token: string): void {
+    this.saveToken(token);
+  }
+
   logout(): void {
     localStorage.removeItem(this.tokenKey);
   }
