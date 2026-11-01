@@ -136,4 +136,27 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
                         @Param("languages") Collection<String> languages,
                         @Param("poster") String poster);
 
+        @Query("""
+                        MATCH (u:User)-[:OWNS]->(m:Movie {movieId: $movieId})
+                        WHERE id(u) = $userId
+                        SET m.title = $title, m.year = $year, m.released = $released,
+                            m.plot = $plot, m.budget = $budget, m.revenue = $revenue,
+                            m.runtime = $runtime, m.countries = $countries,
+                            m.languages = $languages, m.poster = $poster
+                        RETURN m.movieId AS movieId
+                        """)
+        Optional<String> updateOwnedMovie(
+                        @Param("userId") Long userId,
+                        @Param("movieId") String movieId,
+                        @Param("title") String title,
+                        @Param("year") Integer year,
+                        @Param("released") String released,
+                        @Param("plot") String plot,
+                        @Param("budget") Long budget,
+                        @Param("revenue") Long revenue,
+                        @Param("runtime") Integer runtime,
+                        @Param("countries") Collection<String> countries,
+                        @Param("languages") Collection<String> languages,
+                        @Param("poster") String poster);
+
 }
