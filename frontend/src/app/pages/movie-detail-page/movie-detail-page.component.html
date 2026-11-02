@@ -144,7 +144,6 @@
                 (click)="playMovie()"
               >
                 <span class="material-icons">play_arrow</span>
-
                 Play
               </button>
 
@@ -181,6 +180,18 @@
                       ? ""
                       : "Add to Watchlist"
                 }}
+              </button>
+
+              <!-- Share button -->
+              <button
+                z-button
+                zType="outline"
+                type="button"
+                class="h-12 gap-2 border border-white/20 bg-white/5 px-5 text-white hover:border-white/40 hover:bg-white/10"
+                (click)="openShareDialog()"
+              >
+                <span class="material-icons text-zinc-300">share</span>
+                Share
               </button>
 
               <p
@@ -266,6 +277,7 @@
       </div>
     </section>
 
+    <!-- Player Modal -->
     @if (playerOpen() && playerUrl()) {
       <div
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
@@ -323,6 +335,7 @@
     }
   </ng-container>
 
+  <!-- Provider Chooser Modal -->
   @if (providerChooserOpen()) {
     <div
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
@@ -377,6 +390,98 @@
           >
             Cancel
           </button>
+        </div>
+      </section>
+    </div>
+  }
+
+  <!-- YouTube-Style Share Dialog Modal (Powered by @ng-icons) -->
+  @if (shareDialogOpen()) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+      (click)="closeShareDialog()"
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="share-dialog-title"
+        class="w-full max-w-lg rounded-2xl border border-white/10 bg-[#212121] p-6 text-white shadow-2xl"
+        (click)="$event.stopPropagation()"
+      >
+        <!-- Modal Header -->
+        <div
+          class="flex items-center justify-between border-b border-white/10 pb-4"
+        >
+          <h2 id="share-dialog-title" class="text-lg font-bold">Share</h2>
+          <button
+            type="button"
+            class="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 transition hover:bg-white/10 hover:text-white"
+            aria-label="Close dialog"
+            (click)="closeShareDialog()"
+          >
+            ✕
+          </button>
+        </div>
+
+        <!-- YouTube-Style Circular Social Buttons Carousel -->
+        <div
+          class="my-6 flex items-center gap-4 overflow-x-auto pb-2 scrollbar-none"
+        >
+          @for (social of socialList(); track social.id) {
+            <a
+              [href]="social.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="group flex flex-col items-center gap-2 shrink-0 cursor-pointer text-center"
+            >
+              <!-- Official Brand Colored Circle -->
+              <div
+                class="flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform duration-150 group-hover:scale-105 active:scale-95 {{
+                  social.color
+                }}"
+              >
+                <!-- Clean ng-icon tag, zero inline SVG markup -->
+                <ng-icon [name]="social.icon" class="text-2xl" />
+              </div>
+              <span class="text-xs text-zinc-300 group-hover:text-white">{{
+                social.name
+              }}</span>
+            </a>
+          }
+        </div>
+
+        <!-- Copy Link Section -->
+        <div class="mt-4">
+          <label
+            class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-zinc-400"
+          >
+            Page link
+          </label>
+          <div
+            class="flex items-center gap-2 rounded-xl border border-white/10 bg-black/60 p-1.5 pl-3"
+          >
+            <input
+              type="text"
+              readonly
+              [value]="currentUrl"
+              class="w-full select-all bg-transparent text-xs text-zinc-300 outline-none"
+            />
+            <button
+              type="button"
+              (click)="copyLink()"
+              class="flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-4 text-xs font-bold transition-all duration-200"
+              [ngClass]="
+                copied()
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-white text-black hover:bg-zinc-200'
+              "
+            >
+              <span class="material-icons text-sm">
+                {{ copied() ? "check" : "content_copy" }}
+              </span>
+              {{ copied() ? "Copied!" : "Copy" }}
+            </button>
+          </div>
         </div>
       </section>
     </div>
