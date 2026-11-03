@@ -60,4 +60,26 @@ public class UserController {
             return Long.parseLong(str.trim());
         return null;
     }
+
+    @PostMapping("/me/mfa/totp/setup")
+    public ResponseEntity<TotpSetupResponse> setupTotp(
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(
+                userService.setupTotp(extractUserId(jwt)));
+    }
+
+    @PostMapping("/me/mfa/totp/confirm")
+    public ResponseEntity<Void> confirmTotp(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody TotpConfirmRequest request) {
+        userService.confirmTotp(extractUserId(jwt), request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me/mfa/status")
+    public ResponseEntity<MfaStatusResponse> getMfaStatus(
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(
+                userService.getMfaStatus(extractUserId(jwt)));
+    }
 }

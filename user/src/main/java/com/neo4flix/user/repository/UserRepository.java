@@ -21,4 +21,6 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
             RETURN count(u)
             """)
     void deleteUserAndOwnedDataById(@Param("userId") Long userId);
+
+    Optional<User> findByMfaChallengeHash(String mfaChallengeHash);
 }

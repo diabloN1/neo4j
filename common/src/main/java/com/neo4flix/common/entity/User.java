@@ -30,6 +30,17 @@ public class User {
 
     private String password;
 
+    private boolean mfaEnabled = false;
+
+    private String totpSecretEcrypted;
+    private String pendingTotpSecretEncrypted;
+    private Instant pendingTotpSecretExpiresAt;
+
+    private Long lastUsedTotpStep;
+
+    private String mfaChallengeHash;
+    private Instant mfaChallengeExpiresAt;
+
     @Relationship(type = "WATCHLIST", direction = Relationship.Direction.OUTGOING)
     private List<Watchlist> watchlist = new ArrayList<>();
 
