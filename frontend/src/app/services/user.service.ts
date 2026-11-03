@@ -1,25 +1,30 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable, inject } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Observable } from "rxjs";
 
 import {
   ChangePasswordRequest,
   DeleteAccountRequest,
+  MfaStatusResponse,
   ProfileUpdateResponse,
+  TotpConfirmRequest,
+  TotpSetupResponse,
   UpdateProfileRequest,
   UserProfile,
-} from '@/models/user.model';
+} from "@/models/user.model";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class UserService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = '/api/users/me';
+  private readonly apiUrl = "/api/users/me";
 
   getProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(this.apiUrl);
   }
 
-  updateProfile(request: UpdateProfileRequest): Observable<ProfileUpdateResponse> {
+  updateProfile(
+    request: UpdateProfileRequest,
+  ): Observable<ProfileUpdateResponse> {
     return this.http.put<ProfileUpdateResponse>(this.apiUrl, request);
   }
 
@@ -29,5 +34,20 @@ export class UserService {
 
   deleteAccount(request: DeleteAccountRequest): Observable<void> {
     return this.http.delete<void>(this.apiUrl, { body: request });
+  }
+
+  getMfaStatus(): Observable<MfaStatusResponse> {
+    return this.http.get<MfaStatusResponse>(`${this.apiUrl}/mfa/status`);
+  }
+
+  setupTotp(): Observable<TotpSetupResponse> {
+    return this.http.post<TotpSetupResponse>(
+      `${this.apiUrl}/mfa/totp/setup`,
+      {},
+    );
+  }
+
+  confirmTotp(request: TotpConfirmRequest): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/mfa/totp/confirm`, request);
   }
 }
