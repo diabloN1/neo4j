@@ -133,6 +133,7 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Start TOTP setup first");
         }
 
+        
         Instant expiration = user.getPendingTotpSecretExpiresAt();
 
         if (expiration == null || !Instant.now().isBefore(expiration)) {

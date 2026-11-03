@@ -1,3 +1,4 @@
+
 package com.neo4flix.user.service;
 
 import org.junit.jupiter.api.Test;
@@ -10,14 +11,12 @@ class TotpServiceTest {
 
     private final TotpService totpService = new TotpService();
 
+    private static final String RFC_SECRET = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
+
     @Test
     void shouldVerifyRfc6238TestVector() {
-        // RFC 6238 SHA-1 test secret
-        String secret = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
-
-        // At timestamp 59, the expected six-digit OTP is 287082.
         OptionalLong result = totpService.verifyCode(
-                secret, "287082", 59L, null);
+                RFC_SECRET, "287082", 59L, null);
 
         assertTrue(result.isPresent());
         assertEquals(1L, result.getAsLong());
@@ -25,10 +24,8 @@ class TotpServiceTest {
 
     @Test
     void shouldRejectReusedTotpCode() {
-        String secret = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
-
         OptionalLong result = totpService.verifyCode(
-                secret, "287082", 59L, 1L);
+                RFC_SECRET, "287082", 59L, 1L);
 
         assertTrue(result.isEmpty());
     }
@@ -36,10 +33,16 @@ class TotpServiceTest {
     @Test
     void shouldRejectInvalidCodeFormat() {
         assertTrue(totpService.verifyCode(
-                "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ",
-                "12345",
-                59L,
-                null).isEmpty());
+                RFC_SECRET, "12345", 59L, null).isEmpty());
+
+        assertTrue(totpService.verifyCode(
+                RFC_SECRET, "abcdef", 59L, null).isEmpty());
+    }
+
+    @Test
+    void shouldRejectNullCode() {
+        assertTrue(totpService.verifyCode(
+                RFC_SECRET, null, 59L, null).isEmpty());
     }
 
     @Test
@@ -48,5 +51,13 @@ class TotpServiceTest {
 
         assertEquals(32, secret.length());
         assertTrue(secret.matches("[A-Z2-7]+"));
+    }
+
+    @Test
+    void shouldGenerateUniqueSecrets() {
+        String first = totpService.generateSecret();
+        String second = totpService.generateSecret();
+
+        assertNotEquals(first, second);
     }
 }
