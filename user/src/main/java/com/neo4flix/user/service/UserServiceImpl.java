@@ -1,6 +1,7 @@
 package com.neo4flix.user.service;
 
 import com.neo4flix.common.entity.User;
+import com.neo4flix.user.client.RatingClient;
 import com.neo4flix.user.dto.*;
 import com.neo4flix.user.exception.BadRequestException;
 import com.neo4flix.user.exception.ConflictException;
@@ -24,12 +25,17 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RatingClient ratingClient;
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponse getProfile(Long userId) {
+    public UserResponse getProfile(Long userId, String authorization) {
         User user = getUserById(userId);
-        return new UserResponse(user);
+
+        UserResponse res = new UserResponse(user);
+        res.setRatings(ratingClient.getMyRatings(authorization));
+
+        return res;
     }
 
     @Override
@@ -133,7 +139,6 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Start TOTP setup first");
         }
 
-        
         Instant expiration = user.getPendingTotpSecretExpiresAt();
 
         if (expiration == null || !Instant.now().isBefore(expiration)) {

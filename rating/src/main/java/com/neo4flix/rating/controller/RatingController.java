@@ -2,6 +2,7 @@ package com.neo4flix.rating.controller;
 
 import com.neo4flix.rating.dto.RatingRequest;
 import com.neo4flix.rating.dto.RatingResponse;
+import com.neo4flix.rating.dto.MyRatingResponse;
 import com.neo4flix.rating.dto.RatingAverageResponse;
 import com.neo4flix.rating.service.RatingService;
 
@@ -35,7 +36,7 @@ public class RatingController {
     }
 
     @GetMapping("/me")
-    public List<RatingResponse> getMyRatings(
+    public List<MyRatingResponse> getMyRatings(
             @AuthenticationPrincipal Jwt jwt) {
 
         String email = jwt.getSubject();
