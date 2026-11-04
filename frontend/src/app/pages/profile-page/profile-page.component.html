@@ -221,9 +221,11 @@
             </form>
           </section>
 
+          <app-user-ratings [ratings]="profile()?.ratings ?? []" />
+
           <!-- Password -->
           <section
-            class="rounded-2xl border border-white/10 bg-zinc-900/70 p-5 sm:p-7"
+            class="rounded-2xl border border-white/10 mt-5 bg-zinc-900/70 p-5 sm:p-7"
           >
             <div class="mb-6">
               <div class="flex items-center gap-2">

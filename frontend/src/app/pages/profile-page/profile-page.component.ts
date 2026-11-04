@@ -20,6 +20,8 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { finalize } from "rxjs";
 import * as QRCode from "qrcode";
 
+import { UserRatingsComponent } from "@/shared/components/user-ratings/user-ratings.component";
+
 import { AuthService } from "@/services/auth.service";
 import { UserService } from "@/services/user.service";
 import { UserProfile } from "@/models/user.model";
@@ -38,7 +40,7 @@ const passwordsMatch: ValidatorFn = (
 @Component({
   selector: "app-profile-page",
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, UserRatingsComponent],
   templateUrl: "profile-page.component.html",
 })
 export class ProfilePageComponent implements OnInit {

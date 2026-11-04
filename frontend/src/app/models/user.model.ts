@@ -1,8 +1,11 @@
+import { UserRatings } from "./rating.model";
+
 export interface UserProfile {
   id: number;
   name: string;
   email: string;
   createdAt: string;
+  ratings: UserRatings[];
 }
 
 export interface UpdateProfileRequest {

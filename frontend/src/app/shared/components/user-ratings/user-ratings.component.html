@@ -1,0 +1,84 @@
+<section
+  class="overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/70"
+>
+  <button
+    type="button"
+    (click)="expanded.update(value => !value)"
+    class="flex w-full items-center justify-between gap-4 p-5 text-left transition hover:bg-white/[0.025] sm:p-7"
+    [attr.aria-expanded]="expanded()"
+  >
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="material-icons text-lg text-rose-400" aria-hidden="true">
+          star
+        </span>
+
+        <h2 class="text-lg font-semibold">My ratings</h2>
+
+        <span
+          class="rounded-full bg-white/5 px-2.5 py-1 text-xs font-medium text-zinc-400"
+        >
+          {{ ratings.length }}
+        </span>
+      </div>
+
+      <p class="mt-1 text-sm text-zinc-500">Movies you've rated on Neo4flix.</p>
+    </div>
+
+    <span
+      class="material-icons shrink-0 text-zinc-400 transition-transform duration-200"
+      [class.rotate-180]="expanded()"
+      aria-hidden="true"
+    >
+      expand_more
+    </span>
+  </button>
+
+  @if (expanded()) {
+    <div class="border-t border-white/10 p-5 sm:p-7">
+      @if (ratings.length === 0) {
+        <div
+          class="rounded-xl border border-dashed border-white/10 px-4 py-10 text-center"
+        >
+          <span class="material-icons text-3xl text-zinc-600">
+            movie_filter
+          </span>
+
+          <p class="mt-3 text-sm font-medium text-zinc-300">No ratings yet</p>
+
+          <p class="mt-1 text-xs text-zinc-500">
+            Movies you rate will appear here.
+          </p>
+        </div>
+      } @else {
+        <div class="grid max-h-96 gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
+          @for (rating of ratings; track rating.movieId) {
+            <a
+              [routerLink]="['/movies', rating.movieId]"
+              class="group flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.025] p-4 transition hover:border-rose-500/40 hover:bg-rose-500/[0.04]"
+            >
+              <div class="min-w-0">
+                <h3
+                  class="truncate text-sm font-semibold text-zinc-200 transition group-hover:text-white"
+                >
+                  {{ rating.movieTitle }}
+                </h3>
+
+                <p class="mt-1 text-xs text-zinc-500">
+                  Rated on {{ rating.updatedAt | date: "mediumDate" }}
+                </p>
+              </div>
+
+              <div
+                class="flex shrink-0 items-center gap-1.5 rounded-lg bg-rose-500/10 px-3 py-2 text-sm font-bold text-rose-400"
+              >
+                <span class="material-icons text-base">star</span>
+                {{ rating.rating }}
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>
