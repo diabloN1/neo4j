@@ -7,6 +7,10 @@ import com.neo4flix.user.exception.ConflictException;
 import com.neo4flix.user.exception.UnauthorizedException;
 import com.neo4flix.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.time.Duration;
+import java.time.Instant;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    private final TotpService totpService;
+    private final TotpSecretEncryptionService totpSecretEncryptionService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -86,5 +92,86 @@ public class UserServiceImpl implements UserService {
         }
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("User account not found"));
+    }
+
+    @Override
+    @Transactional
+    public TotpSetupResponse setupTotp(Long userId) {
+        User user = getUserById(userId);
+
+        if (user.isMfaEnabled()) {
+            throw new ConflictException("MFA is already enabled");
+        }
+
+        String secret = totpService.generateSecret();
+
+        user.setPendingTotpSecretEncrypted(
+                totpSecretEncryptionService.encrypt(secret));
+
+        user.setPendingTotpSecretExpiresAt(
+                Instant.now().plus(Duration.ofMinutes(10)));
+
+        userRepository.save(user);
+
+        String provisioningUri = totpService.generateProvisioningUri(
+                user.getEmail(),
+                secret);
+
+        return new TotpSetupResponse(provisioningUri);
+    }
+
+    @Override
+    @Transactional
+    public void confirmTotp(Long userId, TotpConfirmRequest request) {
+        User user = getUserById(userId);
+
+        if (user.isMfaEnabled()) {
+            throw new ConflictException("MFA is already enabled");
+        }
+
+        if (user.getPendingTotpSecretEncrypted() == null) {
+            throw new BadRequestException("Start TOTP setup first");
+        }
+
+        
+        Instant expiration = user.getPendingTotpSecretExpiresAt();
+
+        if (expiration == null || !Instant.now().isBefore(expiration)) {
+            throw new BadRequestException(
+                    "TOTP setup expired. Please start again.");
+        }
+
+        String secret = totpSecretEncryptionService.decrypt(
+                user.getPendingTotpSecretEncrypted());
+
+        var matchedStep = totpService.verifyCode(
+                secret,
+                request.code(),
+                Instant.now().getEpochSecond(),
+                user.getLastUsedTotpStep());
+
+        if (matchedStep.isEmpty()) {
+            throw new BadRequestException(
+                    "Invalid or expired authenticator code");
+        }
+
+        // Activate the TOTP secret.
+        user.setTotpSecretEcrypted(
+                user.getPendingTotpSecretEncrypted());
+
+        user.setPendingTotpSecretEncrypted(null);
+        user.setPendingTotpSecretExpiresAt(null);
+
+        user.setLastUsedTotpStep(matchedStep.getAsLong());
+        user.setMfaEnabled(true);
+
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MfaStatusResponse getMfaStatus(Long userId) {
+        User user = getUserById(userId);
+        return new MfaStatusResponse(user.isMfaEnabled());
     }
 }

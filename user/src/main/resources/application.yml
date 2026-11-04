@@ -22,3 +22,6 @@ management:
     health:
       probes:
         enabled: true
+
+mfa:
+  encryption-key: ${MFA_ENCRYPTION_KEY}

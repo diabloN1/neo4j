@@ -23,3 +23,15 @@ export interface ChangePasswordRequest {
 export interface DeleteAccountRequest {
   password: string;
 }
+
+export interface MfaStatusResponse {
+  enabled: boolean;
+}
+
+export interface TotpSetupResponse {
+  provisioningUri: string;
+}
+
+export interface TotpConfirmRequest {
+  code: string;
+}

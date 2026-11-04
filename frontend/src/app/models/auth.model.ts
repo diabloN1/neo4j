@@ -1,5 +1,5 @@
 export interface RegisterRequest {
-  name: string
+  name: string;
   email: string;
   password: string;
 }
@@ -7,6 +7,11 @@ export interface RegisterRequest {
 export interface AuthRequest {
   email: string;
   password: string;
+}
+
+export interface MfaVerifyRequest {
+  challengeToken: string;
+  code: string;
 }
 
 export interface AuthUser {
@@ -17,6 +22,8 @@ export interface AuthUser {
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  user: AuthUser;
+  accessToken: string | null;
+  user: AuthUser | null;
+  mfaRequired: boolean;
+  challengeToken: string | null;
 }

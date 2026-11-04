@@ -1,6 +1,8 @@
 package com.neo4flix.user.dto;
 
 public record AuthResponse(
-                String accessToken,
-                UserResponse user) {
+        String accessToken,
+        UserResponse user,
+        boolean mfaRequired,
+        String challengeToken) {
 }

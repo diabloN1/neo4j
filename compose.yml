@@ -1,0 +1,50 @@
+services:
+  movie:
+    image: neo4flix/movie:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: movie
+        APP_PORT: 8081
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+
+  user:
+    image: neo4flix/user:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: user
+        APP_PORT: 8082
+    ports:
+      - "8082:8082"
+    env_file:
+      - .env
+  rating:
+    image: neo4flix/rating:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: rating
+        APP_PORT: 8083
+    ports:
+      - "8083:8083"
+    env_file:
+      - .env
+  recommendation:
+    image: neo4flix/recommendation:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: recommendation
+        APP_PORT: 8084
+    ports:
+      - "8084:8084"
+    env_file:
+      - .env

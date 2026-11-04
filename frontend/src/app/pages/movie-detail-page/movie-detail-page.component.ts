@@ -4,15 +4,14 @@ import { ActivatedRoute, RouterLink } from "@angular/router";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { EMPTY, catchError, finalize, map, of, switchMap, tap } from "rxjs";
 
-
 import { NgIconComponent, provideIcons } from "@ng-icons/core";
 import {
-  siWhatsapp,
-  siX,
-  siFacebook,
-  siTelegram,
-  siReddit,
-  siGmail,
+  simpleWhatsapp,
+  simpleX,
+  simpleFacebook,
+  simpleTelegram,
+  simpleReddit,
+  simpleGmail,
 } from "@ng-icons/simple-icons";
 
 import { Movie } from "../../models/movie.model";
@@ -43,17 +42,16 @@ interface SocialOption {
     ZardButtonComponent,
     ZardCardImports,
     StarRatingComponent,
-    NgIconComponent, // 2. Add NgIconComponent here
+    NgIconComponent, 
   ],
   viewProviders: [
-    // 3. Register icons locally (no app.config edits needed!)
     provideIcons({
-      siWhatsapp,
-      siX,
-      siFacebook,
-      siTelegram,
-      siReddit,
-      siGmail,
+      simpleWhatsapp,
+      simpleX,
+      simpleFacebook,
+      simpleTelegram,
+      simpleReddit,
+      simpleGmail,
     }),
   ],
   templateUrl: "./movie-detail-page.component.html",
