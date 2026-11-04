@@ -42,7 +42,7 @@ interface SocialOption {
     ZardButtonComponent,
     ZardCardImports,
     StarRatingComponent,
-    NgIconComponent, 
+    NgIconComponent,
   ],
   viewProviders: [
     provideIcons({
@@ -94,14 +94,14 @@ export class MovieDetailPageComponent implements OnInit {
       {
         id: "whatsapp",
         name: "WhatsApp",
-        icon: "siWhatsapp",
+        icon: "simpleWhatsapp",
         color: "bg-[#25D366] text-white hover:brightness-110",
         url: `https://api.whatsapp.com/send?text=${title}%20${url}`,
       },
       {
         id: "x",
         name: "X",
-        icon: "siX",
+        icon: "simpleX",
         color:
           "bg-black border border-white/20 text-white hover:border-white/50",
         url: `https://twitter.com/intent/tweet?text=${title}&url=${url}`,
@@ -109,28 +109,28 @@ export class MovieDetailPageComponent implements OnInit {
       {
         id: "facebook",
         name: "Facebook",
-        icon: "siFacebook",
+        icon: "simpleFacebook",
         color: "bg-[#1877F2] text-white hover:brightness-110",
         url: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
       },
       {
         id: "telegram",
         name: "Telegram",
-        icon: "siTelegram",
+        icon: "simpleTelegram",
         color: "bg-[#24A1DE] text-white hover:brightness-110",
         url: `https://t.me/share/url?url=${url}&text=${title}`,
       },
       {
         id: "reddit",
         name: "Reddit",
-        icon: "siReddit",
+        icon: "simpleReddit",
         color: "bg-[#FF4500] text-white hover:brightness-110",
         url: `https://reddit.com/submit?url=${url}&title=${title}`,
       },
       {
         id: "email",
         name: "Email",
-        icon: "siGmail",
+        icon: "simpleGmail",
         color: "bg-[#EA4335] text-white hover:brightness-110",
         url: `mailto:?subject=${title}&body=Check%20out%20this%20movie:%20${url}`,
       },

@@ -24,6 +24,9 @@ services:
       - "8082:8082"
     env_file:
       - .env
+    environment:
+      RATING_SERVICE_URL: http://rating:8083
+
   rating:
     image: neo4flix/rating:local
     build:

@@ -10,7 +10,7 @@ import com.neo4flix.user.dto.UpdateProfileRequest;
 import com.neo4flix.user.dto.UserResponse;
 
 public interface UserService {
-    UserResponse getProfile(Long userId);
+    UserResponse getProfile(Long userId, String authorization);
 
     ProfileUpdateResponse updateProfile(Long userId, UpdateProfileRequest request);
 

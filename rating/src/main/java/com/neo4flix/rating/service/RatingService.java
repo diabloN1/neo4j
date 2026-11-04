@@ -1,6 +1,7 @@
 package com.neo4flix.rating.service;
 
 import com.neo4flix.rating.dto.RatingResponse;
+import com.neo4flix.rating.dto.MyRatingResponse;
 import com.neo4flix.rating.dto.RatingAverageResponse;
 import com.neo4flix.rating.repository.RatingRepository;
 
@@ -27,7 +28,7 @@ public class RatingService {
                                                 "User or movie not found."));
         }
 
-        public List<RatingResponse> getMyRatings(String userEmail) {
+        public List<MyRatingResponse> getMyRatings(String userEmail) {
                 return ratingRepository.findRatingsByUser(userEmail)
                                 .stream()
                                 .toList();

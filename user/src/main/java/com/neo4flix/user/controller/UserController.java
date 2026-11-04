@@ -5,6 +5,7 @@ import com.neo4flix.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -19,9 +20,10 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getProfile(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<UserResponse> getProfile(@AuthenticationPrincipal Jwt jwt,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
         Long userId = extractUserId(jwt);
-        return ResponseEntity.ok(userService.getProfile(userId));
+        return ResponseEntity.ok(userService.getProfile(userId, authorization));
     }
 
     @PutMapping("/me")
