@@ -80,6 +80,10 @@ export class ProfilePageComponent implements OnInit {
   readonly mfaMessage = signal("");
   readonly mfaError = signal("");
 
+  readonly disablingMfa = signal(false);
+  readonly disableMfaMessage = signal("");
+  readonly disableMfaError = signal("");
+
   readonly initials = computed(() => {
     const name = this.profile()?.name?.trim() ?? "";
 
@@ -297,6 +301,41 @@ export class ProfilePageComponent implements OnInit {
           );
         },
       });
+  }
+
+  readonly disableMfaForm = this.fb.nonNullable.group({
+    currentPassword: ["", Validators.required],
+    code: ["", [Validators.required, Validators.pattern(/^\d{6}$/)]],
+  });
+
+  disableMfa(): void {
+    if (this.disableMfaForm.invalid || this.disablingMfa()) {
+      this.disableMfaForm.markAllAsTouched();
+      return;
+    }
+
+    this.disablingMfa.set(true);
+    this.disableMfaMessage.set("");
+    this.disableMfaError.set("");
+
+    this.userService.disableTotp(this.disableMfaForm.getRawValue()).subscribe({
+      next: () => {
+        this.mfaEnabled.set(false);
+        this.disableMfaMessage.set(
+          "Two-factor authentication has been disabled.",
+        );
+        this.disableMfaForm.reset();
+        this.disablingMfa.set(false);
+        this.loadMfaStatus();
+      },
+      error: (error) => {
+        this.disableMfaError.set(
+          error?.error?.message ??
+            "Failed to disable two-factor authentication.",
+        );
+        this.disablingMfa.set(false);
+      },
+    });
   }
 
   // Generate QR code locally in the browser

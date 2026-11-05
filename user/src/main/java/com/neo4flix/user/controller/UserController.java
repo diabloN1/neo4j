@@ -84,4 +84,13 @@ public class UserController {
         return ResponseEntity.ok(
                 userService.getMfaStatus(extractUserId(jwt)));
     }
+
+    @PostMapping("/me/mfa/totp/disable")
+    public ResponseEntity<Void> disableTotp(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody TotpDisableRequest request) {
+
+        userService.disableTotp(extractUserId(jwt), request);
+        return ResponseEntity.noContent().build();
+    }
 }
