@@ -174,6 +174,44 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public void disableTotp(Long userId, TotpDisableRequest request) {
+        User user = getUserById(userId);
+
+        if (!user.isMfaEnabled() || user.getTotpSecretEcrypted() == null) {
+            throw new BadRequestException("Two-factor authentication is not enabled");
+        }
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new BadRequestException("Current password is incorrect");
+        }
+
+        String secret = totpSecretEncryptionService.decrypt(
+                user.getTotpSecretEcrypted());
+
+        var matchedStep = totpService.verifyCode(
+                secret,
+                request.code(),
+                Instant.now().getEpochSecond(),
+                user.getLastUsedTotpStep());
+
+        if (matchedStep.isEmpty()) {
+            throw new BadRequestException("Invalid or expired authenticator code");
+        }
+
+        user.setMfaEnabled(false);
+        user.setTotpSecretEcrypted(null);
+        user.setPendingTotpSecretEncrypted(null);
+        user.setPendingTotpSecretExpiresAt(null);
+        user.setLastUsedTotpStep(null);
+
+        user.setMfaChallengeHash(null);
+        user.setMfaChallengeExpiresAt(null);
+
+        userRepository.save(user);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public MfaStatusResponse getMfaStatus(Long userId) {
         User user = getUserById(userId);

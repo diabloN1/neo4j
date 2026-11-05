@@ -38,3 +38,7 @@ export interface TotpSetupResponse {
 export interface TotpConfirmRequest {
   code: string;
 }
+export interface TotpDisableRequest {
+  currentPassword: string;
+  code: string;
+}

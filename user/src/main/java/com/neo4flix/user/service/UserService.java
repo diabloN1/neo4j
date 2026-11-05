@@ -5,6 +5,7 @@ import com.neo4flix.user.dto.DeleteAccountRequest;
 import com.neo4flix.user.dto.MfaStatusResponse;
 import com.neo4flix.user.dto.ProfileUpdateResponse;
 import com.neo4flix.user.dto.TotpConfirmRequest;
+import com.neo4flix.user.dto.TotpDisableRequest;
 import com.neo4flix.user.dto.TotpSetupResponse;
 import com.neo4flix.user.dto.UpdateProfileRequest;
 import com.neo4flix.user.dto.UserResponse;
@@ -23,4 +24,6 @@ public interface UserService {
     void confirmTotp(Long userId, TotpConfirmRequest request);
 
     MfaStatusResponse getMfaStatus(Long userId);
+
+    void disableTotp(Long userId, TotpDisableRequest request);
 }

@@ -8,6 +8,7 @@ import {
   MfaStatusResponse,
   ProfileUpdateResponse,
   TotpConfirmRequest,
+  TotpDisableRequest,
   TotpSetupResponse,
   UpdateProfileRequest,
   UserProfile,
@@ -46,7 +47,13 @@ export class UserService {
       {},
     );
   }
-
+  
+  disableTotp(request: TotpDisableRequest): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiUrl}/mfa/totp/disable`,
+      request,
+    );
+  }
   confirmTotp(request: TotpConfirmRequest): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/mfa/totp/confirm`, request);
   }

@@ -592,6 +592,117 @@
                   </form>
                 </div>
               }
+
+              <!-- Disable MFA Form -->
+              @if (mfaEnabled()) {
+                <div class="mt-6 border-t border-white/10 pt-6">
+                  <div class="mb-4">
+                    <h3 class="text-sm font-semibold text-white">
+                      Disable two-factor authentication
+                    </h3>
+                    <p class="mt-1 text-xs text-zinc-400">
+                      To disable 2FA, enter your current password and a valid
+                      code from your authenticator app.
+                    </p>
+                  </div>
+
+                  <form
+                    [formGroup]="disableMfaForm"
+                    (ngSubmit)="disableMfa()"
+                    novalidate
+                    class="space-y-4"
+                  >
+                    <div class="grid gap-4 sm:grid-cols-2">
+                      <div class="space-y-2">
+                        <label
+                          for="disable-mfa-password"
+                          class="text-sm font-medium text-zinc-300"
+                        >
+                          Current password
+                        </label>
+                        <input
+                          id="disable-mfa-password"
+                          type="password"
+                          formControlName="currentPassword"
+                          autocomplete="current-password"
+                          placeholder="Enter your current password"
+                          class="h-11 w-full rounded-lg border border-white/10 bg-zinc-950 px-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                        />
+                        @if (
+                          disableMfaForm.controls.currentPassword.touched &&
+                          disableMfaForm.controls.currentPassword.invalid
+                        ) {
+                          <p class="text-xs text-red-400">
+                            Current password is required.
+                          </p>
+                        }
+                      </div>
+
+                      <div class="space-y-2">
+                        <label
+                          for="disable-mfa-code"
+                          class="text-sm font-medium text-zinc-300"
+                        >
+                          Authenticator code
+                        </label>
+                        <input
+                          id="disable-mfa-code"
+                          type="text"
+                          inputmode="numeric"
+                          maxlength="6"
+                          formControlName="code"
+                          placeholder="6-digit code"
+                          autocomplete="one-time-code"
+                          class="h-11 w-full rounded-lg border border-white/10 bg-zinc-950 px-3 text-sm tracking-wider text-white outline-none transition placeholder:tracking-normal placeholder:text-zinc-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                        />
+                        @if (
+                          disableMfaForm.controls.code.touched &&
+                          disableMfaForm.controls.code.invalid
+                        ) {
+                          <p class="text-xs text-red-400">
+                            Enter the 6-digit authenticator code.
+                          </p>
+                        }
+                      </div>
+                    </div>
+
+                    @if (disableMfaMessage()) {
+                      <div
+                        class="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-300"
+                        role="status"
+                      >
+                        {{ disableMfaMessage() }}
+                      </div>
+                    }
+
+                    @if (disableMfaError()) {
+                      <div
+                        class="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2.5 text-sm text-red-300"
+                        role="alert"
+                      >
+                        {{ disableMfaError() }}
+                      </div>
+                    }
+
+                    <div class="flex justify-end pt-2">
+                      <button
+                        type="submit"
+                        [disabled]="disableMfaForm.invalid || disablingMfa()"
+                        class="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 text-sm font-semibold text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        @if (disablingMfa()) {
+                          <span
+                            class="size-4 animate-spin rounded-full border-2 border-red-400/40 border-t-red-400"
+                          ></span>
+                          Disabling…
+                        } @else {
+                          Disable 2FA
+                        }
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              }
             }
           </section>
 
