@@ -8,10 +8,12 @@ import {
   MfaVerifyRequest,
   RegisterRequest,
 } from "../models/auth.model";
+import { Router } from "@angular/router";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   private readonly apiUrl = "/api/auth";
   private readonly tokenKey = "neo4flix.token";
 
@@ -39,6 +41,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
+    this.router.navigateByUrl("/");
   }
 
   getAccessToken(): string | null {

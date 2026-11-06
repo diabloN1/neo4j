@@ -93,7 +93,7 @@ public class SecurityConfig {
                 config.setAllowCredentials(true);
 
                 config.setAllowedOrigins(
-                                List.of("http://localhost:4200"));
+                                List.of("https://localhost"));
 
                 config.setAllowedMethods(
                                 List.of(
