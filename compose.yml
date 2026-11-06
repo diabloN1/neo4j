@@ -7,8 +7,6 @@ services:
       args:
         SERVICE: movie
         APP_PORT: 8081
-    ports:
-      - "8081:8081"
     env_file:
       - .env
 
@@ -20,8 +18,6 @@ services:
       args:
         SERVICE: user
         APP_PORT: 8082
-    ports:
-      - "8082:8082"
     env_file:
       - .env
     environment:
@@ -35,8 +31,6 @@ services:
       args:
         SERVICE: rating
         APP_PORT: 8083
-    ports:
-      - "8083:8083"
     env_file:
       - .env
   recommendation:
@@ -47,7 +41,27 @@ services:
       args:
         SERVICE: recommendation
         APP_PORT: 8084
-    ports:
-      - "8084:8084"
     env_file:
       - .env
+  caddy:
+    image: caddy:2
+    container_name: neo4flix-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - movie
+      - user
+      - rating
+      - recommendation
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  caddy_data:
+  caddy_config:

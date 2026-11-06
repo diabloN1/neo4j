@@ -35,8 +35,7 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "neo4flix-frontend:build:production",
-              "proxyConfig": "proxy.conf.json"
+              "buildTarget": "neo4flix-frontend:build:production"
             },
             "development": {
               "buildTarget": "neo4flix-frontend:build:development",

@@ -1,0 +1,31 @@
+https://localhost {
+    tls internal
+
+    handle /api/auth* {
+        reverse_proxy user:8082
+    }
+
+    handle /api/users* {
+        reverse_proxy user:8082
+    }
+
+    handle /api/movies* {
+        reverse_proxy movie:8081
+    }
+
+    handle /api/ratings* {
+        reverse_proxy rating:8083
+    }
+
+    handle /api/watchlist* {
+        reverse_proxy rating:8083
+    }
+
+    handle /api/recommendations* {
+        reverse_proxy recommendation:8084
+    }
+
+    handle {
+        reverse_proxy host.docker.internal:4200
+    }
+}
