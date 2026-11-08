@@ -43,24 +43,28 @@
           >
             Your personal collection
           </p>
+
           <h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
             My Watchlist
           </h1>
+
           <p class="mt-2 max-w-lg text-sm leading-6 text-zinc-400">
             All the movies you want to watch, collected in one place. Your next
             favorite is waiting.
           </p>
         </div>
 
+        <!-- Total watchlist count -->
         <div
-          *ngIf="movies().length"
+          *ngIf="totalElements() > 0"
           class="flex w-fit items-center gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3"
         >
           <span class="material-icons text-2xl text-rose-500"> bookmark </span>
+
           <div>
-            <p class="text-xl font-bold">{{ movies().length }}</p>
+            <p class="text-xl font-bold">{{ totalElements() }}</p>
             <p class="text-xs text-zinc-500">
-              {{ movies().length === 1 ? "Movie saved" : "Movies saved" }}
+              {{ totalElements() === 1 ? "Movie saved" : "Movies saved" }}
             </p>
           </div>
         </div>
@@ -71,8 +75,7 @@
       <!-- Collection heading -->
       <section
         class="flex flex-col gap-3 py-8 sm:flex-row sm:items-end sm:justify-between"
-      >
-      </section>
+      ></section>
 
       <!-- Movie collection -->
       <section *ngIf="movies().length" aria-label="Movies in your watchlist">
@@ -125,7 +128,7 @@
                     'Remove ' + movie.title + ' from watchlist'
                   "
                   [attr.title]="'Remove ' + movie.title + ' from watchlist'"
-                  class="absolute cursor-pointer right-2 top-2 z-10 flex size-9 items-center justify-center rounded-full border border-white/10 bg-black/80 text-white backdrop-blur-sm transition-colors hover:border-rose-500/50 hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  class="absolute right-2 top-2 z-10 flex size-9 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-black/80 text-white backdrop-blur-sm transition-colors hover:border-rose-500/50 hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-50"
                   (click)="removeMovie(movie)"
                 >
                   <span class="material-icons text-lg">
@@ -164,6 +167,7 @@
                 class="mt-1 flex items-center justify-between gap-2 text-sm text-zinc-400"
               >
                 <span>{{ movie.year ?? "Year unknown" }}</span>
+
                 <span
                   *ngIf="movie.imdbRating != null"
                   class="shrink-0 text-xs text-yellow-400"
@@ -184,6 +188,40 @@
           }
         </div>
       </section>
+
+      <!-- Pagination -->
+      <div
+        *ngIf="totalPages() > 1"
+        class="mt-10 flex items-center justify-between border-t border-white/10 pt-6"
+      >
+        <button
+          z-button
+          zType="outline"
+          type="button"
+          (click)="previousPage()"
+          [disabled]="currentPage() === 0 || loading()"
+          class="border-white/10 text-zinc-300 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <span class="material-icons mr-1 text-lg">chevron_left</span>
+          Previous
+        </button>
+
+        <span class="text-sm text-zinc-400">
+          Page {{ currentPage() + 1 }} of {{ totalPages() }}
+        </span>
+
+        <button
+          z-button
+          zType="outline"
+          type="button"
+          (click)="nextPage()"
+          [disabled]="currentPage() >= totalPages() - 1 || loading()"
+          class="border-white/10 text-zinc-300 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Next
+          <span class="material-icons ml-1 text-lg">chevron_right</span>
+        </button>
+      </div>
 
       <!-- Empty state -->
       <section

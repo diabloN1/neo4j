@@ -1,17 +1,7 @@
 import { CommonModule } from "@angular/common";
-import {
-  Component,
-  DestroyRef,
-  OnInit,
-  inject,
-  signal,
-} from "@angular/core";
+import { Component, DestroyRef, OnInit, inject, signal } from "@angular/core";
 import { RouterLink } from "@angular/router";
-import {
-  catchError,
-  finalize,
-  of,
-} from "rxjs";
+import { catchError, finalize, of } from "rxjs";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { Movie, MovieQuery } from "../../models/movie.model";
@@ -32,7 +22,7 @@ import { MoviesSliderComponent } from "@/shared/components/movies-slider/movies-
     ObserveVisibleDirective,
     ZardButtonComponent,
     ZardCardImports,
-    MoviesSliderComponent
+    MoviesSliderComponent,
   ],
   templateUrl: "./catalog-page.component.html",
 })
@@ -120,14 +110,10 @@ export class CatalogPageComponent implements OnInit {
           return;
         }
 
-        const received: Movie[] =
-          response.content ??
-          response.movies ??
-          response.items ??
-          [];
+        const received: Movie[] = response.content;
 
         this.genreMovies.update((current) => {
-          const existing = page === 0 ? [] : current[genre] ?? [];
+          const existing = page === 0 ? [] : (current[genre] ?? []);
 
           const seen = new Set(
             existing.map((movie) => movie.tmdbId ?? movie.title),
@@ -236,11 +222,7 @@ export class CatalogPageComponent implements OnInit {
           return;
         }
 
-        const list: Movie[] =
-          response.content ??
-          response.movies ??
-          response.items ??
-          [];
+        const list: Movie[] = response.content;
 
         this.movies.set(list);
       });
@@ -257,7 +239,7 @@ export class CatalogPageComponent implements OnInit {
   scrollMovies(element: HTMLElement, direction: number): void {
     element.scrollBy({
       left: direction * element.clientWidth * 0.9,
-      behavior: 'smooth'
+      behavior: "smooth",
     });
   }
 }

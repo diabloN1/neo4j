@@ -1,17 +1,19 @@
-import { Movie } from '@/models/movie.model';
-import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Movie, MoviePage } from "@/models/movie.model";
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { Injectable, inject } from "@angular/core";
+import { Observable } from "rxjs";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class WatchlistService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `/api/watchlist`;
 
-  findMoviesByUser(): Observable<Movie[]> {
-    return this.http.get<Movie[]>(this.apiUrl);
+  findMoviesByUser(page: number, size: number): Observable<MoviePage<Movie>> {
+    const params = new HttpParams().set("page", page).set("size", size);
+
+    return this.http.get<MoviePage<Movie>>(this.apiUrl, { params });
   }
 
   inWatchList(movieId: string): Observable<boolean> {

@@ -1,11 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  Component,
-  DestroyRef,
-  OnInit,
-  inject,
-  signal,
-} from "@angular/core";
+import { Component, DestroyRef, OnInit, inject, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import {
@@ -26,12 +20,7 @@ import { ObserveVisibleDirective } from "@/shared/directives/observe-visible.dir
 @Component({
   selector: "app-movie-browser",
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterLink,
-    ObserveVisibleDirective,
-  ],
+  imports: [CommonModule, FormsModule, RouterLink, ObserveVisibleDirective],
   templateUrl: "search-page.component.html",
 })
 export class SearchComponent implements OnInit {
@@ -68,9 +57,7 @@ export class SearchComponent implements OnInit {
       )
       .subscribe((items) => {
         this.genres.set(
-          (items ?? []).filter(
-            (item) => item && item !== "(no genres listed)",
-          ),
+          (items ?? []).filter((item) => item && item !== "(no genres listed)"),
         );
       });
 
@@ -95,9 +82,7 @@ export class SearchComponent implements OnInit {
         const nextGenre = params.get("genre") ?? "";
         const yearParam = params.get("year");
         const parsedYear =
-          yearParam && yearParam.trim() !== ""
-            ? Number(yearParam)
-            : null;
+          yearParam && yearParam.trim() !== "" ? Number(yearParam) : null;
         const nextYear =
           parsedYear !== null && Number.isInteger(parsedYear)
             ? parsedYear
@@ -142,9 +127,7 @@ export class SearchComponent implements OnInit {
   loadFirstPage(): void {
     this.resetResults();
 
-    this.fetchPage(0)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+    this.fetchPage(0).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   loadMore(): void {
@@ -225,11 +208,7 @@ export class SearchComponent implements OnInit {
           return;
         }
 
-        const received: Movie[] =
-          response.content ??
-          response.movies ??
-          response.items ??
-          [];
+        const received: Movie[] = response.content;
 
         this.movies.update((current) => {
           const existingKeys = new Set(
@@ -253,9 +232,7 @@ export class SearchComponent implements OnInit {
 
         this.page = page;
 
-        this.totalElements.set(
-          response.totalElements ?? this.movies().length,
-        );
+        this.totalElements.set(response.totalElements ?? this.movies().length);
 
         this.hasMore.set(
           response.totalPages != null

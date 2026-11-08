@@ -116,7 +116,7 @@
         <span
           class="rounded-full bg-zinc-800/80 px-3 py-1 text-xs font-medium text-zinc-400 border border-zinc-700/50"
         >
-          {{ movies().length }} {{ movies().length === 1 ? "Movie" : "Movies" }}
+          {{ totalElements() }} {{ totalElements() === 1 ? "Movie" : "Movies" }}
         </span>
       </div>
 
@@ -249,6 +249,33 @@
             </button>
           </div>
         </article>
+      </div>
+      <!-- Pagination -->
+      <div
+        *ngIf="!loading() && totalPages() > 1"
+        class="mt-8 flex items-center justify-between border-t border-zinc-800 pt-6"
+      >
+        <button
+          type="button"
+          (click)="previousPage()"
+          [disabled]="currentPage() === 0 || loading()"
+          class="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Previous
+        </button>
+
+        <span class="text-sm text-zinc-400">
+          Page {{ currentPage() + 1 }} of {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          (click)="nextPage()"
+          [disabled]="currentPage() >= totalPages() - 1 || loading()"
+          class="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Next
+        </button>
       </div>
     </section>
   </div>

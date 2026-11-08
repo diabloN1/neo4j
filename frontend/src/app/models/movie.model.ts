@@ -34,16 +34,12 @@ export interface MovieWriteRequest {
   directors: string[];
 }
 
-export interface MoviePage {
-  content?: Movie[];
-  movies?: Movie[];
-  items?: Movie[];
-  totalPages?: number;
-  totalElements?: number;
-  number?: number;
-  size?: number;
-  first?: boolean;
-  last?: boolean;
+export interface MoviePage<T> {
+  content: T[];
+  totalElements: number;
+  page: number;
+  size: number;
+  totalPages: number;
 }
 
 export interface MovieQuery {

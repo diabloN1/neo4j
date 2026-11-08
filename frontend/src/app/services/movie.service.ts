@@ -13,7 +13,7 @@ export class MovieService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = "/api/movies";
 
-  getMovies(query: MovieQuery): Observable<MoviePage> {
+  getMovies(query: MovieQuery): Observable<MoviePage<Movie>> {
     let params = new HttpParams()
       .set("page", query.page)
       .set("size", query.size);
@@ -21,19 +21,26 @@ export class MovieService {
     const search = query.search?.trim();
     if (search) params = params.set("search", search);
     if (query.genre?.trim()) params = params.set("genre", query.genre.trim());
+
     if (query.year !== undefined && query.year !== null) {
       params = params.set("year", query.year.toString());
     }
 
-    return this.http.get<MoviePage>(this.apiUrl, { params });
+    return this.http.get<MoviePage<Movie>>(this.apiUrl, { params });
   }
 
   getGenres(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/genres`);
   }
 
-  getMyMovies(): Observable<Movie[]> {
-    return this.http.get<Movie[]>(`${this.apiUrl}/owned`);
+  getMyMovies(query: MovieQuery): Observable<MoviePage<Movie>> {
+    const params = new HttpParams()
+      .set("page", query.page)
+      .set("size", query.size);
+
+    return this.http.get<MoviePage<Movie>>(`${this.apiUrl}/owned`, {
+      params,
+    });
   }
 
   getMovieById(id: string): Observable<Movie> {

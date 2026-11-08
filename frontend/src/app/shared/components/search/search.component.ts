@@ -248,9 +248,7 @@ export class SearchComponent {
             );
         }),
         tap((response) => {
-          const results: Movie[] = response
-            ? (response.content ?? response.movies ?? response.items ?? [])
-            : [];
+          const results: Movie[] = response?.content ?? [];
 
           this.searchResults.set(results);
         }),
@@ -312,10 +310,7 @@ export class SearchComponent {
       return;
     }
 
-    if (
-      (event.ctrlKey || event.metaKey) &&
-      event.key.toLowerCase() === "k"
-    ) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
       event.preventDefault();
       this.openSearch();
       return;

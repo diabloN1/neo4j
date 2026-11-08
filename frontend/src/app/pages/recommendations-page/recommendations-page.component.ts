@@ -8,7 +8,7 @@ import {
   signal,
 } from "@angular/core";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
-import { catchError, finalize, interval, of } from "rxjs";
+import { catchError, finalize, interval, of, Subscription } from "rxjs";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { MovieQuery } from "../../models/movie.model";
@@ -28,7 +28,7 @@ import { MoviesSliderComponent } from "@/shared/components/movies-slider/movies-
     RouterLink,
     ObserveVisibleDirective,
     ZardButtonComponent,
-    MoviesSliderComponent
+    MoviesSliderComponent,
   ],
   templateUrl: "./recommendations-page.component.html",
 })
@@ -56,6 +56,8 @@ export class RecommendationsPageComponent implements OnInit {
   readonly size = 50;
   readonly slideDurationMs = 10000;
   private page = 0;
+
+  private recommendationsRequest?: Subscription;
 
   ngOnInit(): void {
     this.route.queryParamMap
@@ -96,15 +98,18 @@ export class RecommendationsPageComponent implements OnInit {
   }
 
   loadRecommendations(reset = true): void {
-    if (this.loading() || this.loadingMore()) {
+    if (!reset && (this.loading() || this.loadingMore())) {
       return;
     }
 
     if (reset) {
+      this.recommendationsRequest?.unsubscribe();
+
       this.page = 0;
       this.hasMore.set(true);
       this.recommendations.set([]);
       this.error.set("");
+      this.loadingMore.set(false);
       this.loading.set(true);
     } else {
       if (!this.hasMore()) {
@@ -122,7 +127,7 @@ export class RecommendationsPageComponent implements OnInit {
       size: this.size,
     };
 
-    this.recommendationService
+    this.recommendationsRequest = this.recommendationService
       .getRecommandations(query)
       .pipe(
         catchError((error) => {

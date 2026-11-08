@@ -2,6 +2,7 @@ package com.neo4flix.movie.controller;
 
 import com.neo4flix.movie.dto.MovieDetails;
 import com.neo4flix.movie.dto.MoviePage;
+import com.neo4flix.movie.dto.MovieSummary;
 import com.neo4flix.movie.dto.MovieWriteRequest;
 import com.neo4flix.movie.service.MovieService;
 
@@ -32,15 +33,16 @@ public class MovieController {
     private final MovieService service;
 
     @GetMapping("/owned")
-    public ResponseEntity<Page<MovieDetails>> findMyMovies(
+    public ResponseEntity<MoviePage<MovieDetails>> findMyMovies(
             @AuthenticationPrincipal Jwt jwt,
             @PageableDefault(size = 20) Pageable pageable) {
+
         Long userId = extractUserId(jwt);
         return ResponseEntity.ok(service.findOwnedMovies(userId, pageable));
     }
 
     @GetMapping
-    public ResponseEntity<MoviePage> findMovies(
+    public ResponseEntity<MoviePage<MovieSummary>> findMovies(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String genre,
             @RequestParam(required = false) @Min(value = 1888, message = "Year must be 1888 or later") Integer year,
@@ -49,7 +51,7 @@ public class MovieController {
         String cleanSearch = (search != null && !search.isBlank()) ? search.trim() : null;
         String cleanGenre = (genre != null && !genre.isBlank()) ? genre.trim() : null;
 
-        MoviePage movies = service.findMovies(cleanSearch, cleanGenre, year, pageable);
+        MoviePage<MovieSummary> movies = service.findMovies(cleanSearch, cleanGenre, year, pageable);
         return ResponseEntity.ok(movies);
     }
 

@@ -10,11 +10,7 @@ import { ZardButtonComponent } from "@/shared/components/button/button.component
 @Component({
   selector: "app-watchlist-page",
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    ZardButtonComponent,
-  ],
+  imports: [CommonModule, RouterLink, ZardButtonComponent],
   templateUrl: "./watchlist-page.component.html",
 })
 export class WatchlistPageComponent implements OnInit {
@@ -26,7 +22,11 @@ export class WatchlistPageComponent implements OnInit {
   readonly removingMovieIds = signal(new Set<string>());
   readonly posterFailures = signal(new Set<string>());
   readonly removeErrors = signal<Record<string, string>>({});
-movie: any;
+
+  readonly currentPage = signal(0);
+  readonly pageSize = signal(20);
+  readonly totalPages = signal(0);
+  readonly totalElements = signal(0);
 
   ngOnInit(): void {
     this.loadWatchlist();
@@ -37,7 +37,7 @@ movie: any;
     this.error.set("");
 
     this.watchlistService
-      .findMoviesByUser()
+      .findMoviesByUser(this.currentPage(), this.pageSize())
       .pipe(
         catchError((error) => {
           this.error.set(
@@ -52,16 +52,39 @@ movie: any;
         }),
         finalize(() => this.loading.set(false)),
       )
-      .subscribe((movies) => this.movies.set(movies));
+      .subscribe((response) => {
+        this.movies.set(response.content);
+        this.totalPages.set(response.totalPages);
+        this.totalElements.set(response.totalElements);
+      });
+  }
+
+  goToPage(page: number): void {
+    if (
+      page < 0 ||
+      page >= this.totalPages() ||
+      page === this.currentPage() ||
+      this.loading()
+    ) {
+      return;
+    }
+
+    this.currentPage.set(page);
+    this.loadWatchlist();
+  }
+
+  previousPage(): void {
+    this.goToPage(this.currentPage() - 1);
+  }
+
+  nextPage(): void {
+    this.goToPage(this.currentPage() + 1);
   }
 
   removeMovie(movie: Movie): void {
     const movieId = movie.movieId;
 
-    if (
-      !movieId ||
-      this.removingMovieIds().has(movieId)
-    ) {
+    if (!movieId || this.removingMovieIds().has(movieId)) {
       return;
     }
 
@@ -96,9 +119,13 @@ movie: any;
         }),
       )
       .subscribe(() => {
-        this.movies.update((movies) =>
-          movies.filter((item) => item.movieId !== movieId),
-        );
+        this.totalElements.update((total) => Math.max(0, total - 1));
+
+        if (this.movies().length === 1 && this.currentPage() > 0) {
+          this.currentPage.update((page) => page - 1);
+        }
+
+        this.loadWatchlist();
       });
   }
 

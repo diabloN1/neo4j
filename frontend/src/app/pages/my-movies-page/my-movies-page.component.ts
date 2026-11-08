@@ -4,7 +4,7 @@ import { FormsModule } from "@angular/forms";
 import { RouterLink } from "@angular/router";
 import { EMPTY, catchError, finalize, of, tap } from "rxjs";
 
-import { Movie, MovieWriteRequest } from "../../models/movie.model";
+import { Movie, MovieQuery, MovieWriteRequest } from "../../models/movie.model";
 import { AuthService } from "../../services/auth.service";
 import { MovieService } from "../../services/movie.service";
 import { ConfirmDialogService } from "@/services/confirm-dialog.service";
@@ -62,6 +62,11 @@ export class MyMoviesPageComponent implements OnInit {
   readonly isFormOpen = signal(false);
   private readonly confirmDialog = inject(ConfirmDialogService);
 
+  readonly currentPage = signal(0);
+  readonly pageSize = signal(3);
+  readonly totalPages = signal(0);
+  readonly totalElements = signal(0);
+
   form: MovieForm = emptyForm();
   actorInput = "";
   directorInput = "";
@@ -95,18 +100,50 @@ export class MyMoviesPageComponent implements OnInit {
 
   private loadOwnedMovies(): void {
     this.loading.set(true);
+
+    const query: MovieQuery = {
+      page: this.currentPage(),
+      size: this.pageSize(),
+    };
+
     this.movieService
-      .getMyMovies()
+      .getMyMovies(query)
       .pipe(
         finalize(() => this.loading.set(false)),
         catchError((err) => {
           this.error.set(this.errorMessage(err, "Failed to load your movies."));
-          return of([]);
+          return of(null);
         }),
       )
-      .subscribe((loadedMovies) => {
-        this.movies.set(loadedMovies);
+      .subscribe((response) => {
+        if (!response) return;
+
+        this.movies.set(response.content);
+        this.totalPages.set(response.totalPages);
+        this.totalElements.set(response.totalElements);
       });
+  }
+
+  goToPage(page: number): void {
+    if (
+      page < 0 ||
+      page >= this.totalPages() ||
+      page === this.currentPage() ||
+      this.loading()
+    ) {
+      return;
+    }
+
+    this.currentPage.set(page);
+    this.loadOwnedMovies();
+  }
+
+  previousPage(): void {
+    this.goToPage(this.currentPage() - 1);
+  }
+
+  nextPage(): void {
+    this.goToPage(this.currentPage() + 1);
   }
 
   openCreate(): void {
@@ -169,6 +206,7 @@ export class MyMoviesPageComponent implements OnInit {
 
     const request = this.toRequest();
     const id = this.editingId();
+
     this.saving.set(true);
 
     const operation = id
@@ -177,17 +215,13 @@ export class MyMoviesPageComponent implements OnInit {
 
     operation
       .pipe(
-        tap((savedMovie) => {
-          this.movies.update((current) => {
-            const without = current.filter(
-              (item) => item.movieId !== savedMovie.movieId,
-            );
-            return [savedMovie, ...without];
-          });
+        tap(() => {
           this.success.set(
             id ? "Movie updated successfully." : "Movie created successfully.",
           );
+
           this.closeModal();
+          this.loadOwnedMovies();
         }),
         catchError((error) => {
           this.error.set(
@@ -204,7 +238,6 @@ export class MyMoviesPageComponent implements OnInit {
   }
 
   async deleteMovie(movie: Movie): Promise<void> {
-    console.log("1. deleteMovie clicked for:", movie.title);
     const confirmed = await this.confirmDialog.confirm({
       title: `Delete "${movie.title}"?`,
       description:
@@ -212,8 +245,6 @@ export class MyMoviesPageComponent implements OnInit {
       confirmText: "Delete movie",
       variant: "destructive",
     });
-
-    console.log("3. User confirmed?", confirmed);
 
     if (!confirmed) return;
 
@@ -225,10 +256,13 @@ export class MyMoviesPageComponent implements OnInit {
       .deleteOwnedMovie(movie.movieId)
       .pipe(
         tap(() => {
-          this.movies.update((items) =>
-            items.filter((item) => item.movieId !== movie.movieId),
-          );
           this.success.set("Movie deleted successfully.");
+
+          if (this.movies().length === 1 && this.currentPage() > 0) {
+            this.currentPage.update((page) => page - 1);
+          }
+
+          this.loadOwnedMovies();
         }),
         catchError((error) => {
           this.error.set(

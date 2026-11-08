@@ -34,7 +34,7 @@ public class MovieService {
     private final MediaValidatorService mediaValidatorService;
 
     @Transactional(readOnly = true)
-    public MoviePage findMovies(String search, String genre, Integer year, Pageable pageable) {
+    public MoviePage<MovieSummary> findMovies(String search, String genre, Integer year, Pageable pageable) {
         if (pageable.getPageNumber() < 0) {
             throw new IllegalArgumentException("Page index must not be less than zero");
         }
@@ -48,7 +48,7 @@ public class MovieService {
                 year,
                 pageable).map(this::toSummary);
 
-        return new MoviePage(
+        return new MoviePage<>(
                 movies.getContent(),
                 movies.getTotalElements(),
                 movies.getNumber(),
@@ -173,14 +173,21 @@ public class MovieService {
     }
 
     @Transactional(readOnly = true)
-    public Page<MovieDetails> findOwnedMovies(Long userId, Pageable pageable) {
+    public MoviePage<MovieDetails> findOwnedMovies(Long userId, Pageable pageable) {
         Long validUserId = requireUserId(userId);
 
         if (pageable.getPageSize() < 1 || pageable.getPageSize() > 100) {
             throw new IllegalArgumentException("Page size must be between 1 and 100");
         }
 
-        return repository.findOwnedMovies(validUserId, pageable);
+        Page<MovieDetails> movies = repository.findOwnedMovies(validUserId, pageable);
+
+        return new MoviePage<>(
+                movies.getContent(),
+                movies.getTotalElements(),
+                movies.getNumber(),
+                movies.getSize(),
+                movies.getTotalPages());
     }
 
     // Helpers

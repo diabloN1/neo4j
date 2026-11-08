@@ -10,12 +10,25 @@ import com.neo4flix.recommendation.repository.RecommendationRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor  
+@RequiredArgsConstructor
 public class RecommendationService {
     private final RecommendationRepository repo;
 
-    public List<MovieRecommendation> getRecommandations(String email, String genre, Integer year, int skip, int limit) {
+    public List<MovieRecommendation> getRecommendations(
+            String email,
+            String genre,
+            Integer year,
+            int skip,
+            int limit) {
+        if (skip < 0) {
+            throw new IllegalArgumentException("Skip must not be negative.");
+        }
+
+        if (limit < 1 || limit > 100) {
+            throw new IllegalArgumentException("Limit must be between 1 and 100.");
+        }
+
         return repo.findRecommendations(email, genre, year, skip, limit);
     }
-    
+
 }
