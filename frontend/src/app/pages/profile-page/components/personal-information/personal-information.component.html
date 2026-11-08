@@ -1,0 +1,125 @@
+<section class="rounded-2xl border border-white/10 bg-zinc-900/70 p-5 sm:p-7">
+  <div class="mb-6">
+    <div class="flex items-center gap-2">
+      <span class="material-icons text-lg text-rose-400" aria-hidden="true"
+        >person</span
+      >
+      <h2 class="text-lg font-semibold">Personal information</h2>
+    </div>
+    <p class="mt-1 text-sm text-zinc-500">
+      Update the name and email associated with your account.
+    </p>
+  </div>
+
+  <form
+    [formGroup]="profileForm"
+    (ngSubmit)="saveProfile()"
+    novalidate
+    class="space-y-5"
+  >
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div class="space-y-2">
+        <label for="profile-name" class="text-sm font-medium text-zinc-300"
+          >Full name</label
+        >
+        <input
+          id="profile-name"
+          formControlName="name"
+          autocomplete="name"
+          maxlength="50"
+          class="h-11 w-full rounded-lg border border-white/10 bg-zinc-950 px-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+          [attr.aria-invalid]="
+            profileForm.controls.name.invalid &&
+            profileForm.controls.name.touched
+          "
+        />
+        @if (
+          profileForm.controls.name.touched &&
+          profileForm.controls.name.hasError("required")
+        ) {
+          <p class="text-xs text-red-400">Your name is required.</p>
+        } @else if (
+          profileForm.controls.name.touched &&
+          profileForm.controls.name.hasError("minlength")
+        ) {
+          <p class="text-xs text-red-400">
+            Name must contain at least 2 characters.
+          </p>
+        } @else if (
+          profileForm.controls.name.touched &&
+          profileForm.controls.name.hasError("maxlength")
+        ) {
+          <p class="text-xs text-red-400">Name cannot exceed 50 characters.</p>
+        }
+      </div>
+
+      <div class="space-y-2">
+        <label for="profile-email" class="text-sm font-medium text-zinc-300"
+          >Email address</label
+        >
+        <input
+          id="profile-email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          maxlength="254"
+          class="h-11 w-full rounded-lg border border-white/10 bg-zinc-950 px-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+          [attr.aria-invalid]="
+            profileForm.controls.email.invalid &&
+            profileForm.controls.email.touched
+          "
+        />
+        @if (
+          profileForm.controls.email.touched &&
+          profileForm.controls.email.hasError("required")
+        ) {
+          <p class="text-xs text-red-400">Your email is required.</p>
+        } @else if (
+          profileForm.controls.email.touched &&
+          profileForm.controls.email.hasError("email")
+        ) {
+          <p class="text-xs text-red-400">Enter a valid email address.</p>
+        }
+      </div>
+    </div>
+
+    @if (profileMessage()) {
+      <div
+        class="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-300"
+        role="status"
+      >
+        {{ profileMessage() }}
+      </div>
+    }
+    @if (profileError()) {
+      <div
+        class="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2.5 text-sm text-red-300"
+        role="alert"
+      >
+        {{ profileError() }}
+      </div>
+    }
+
+    <div
+      class="flex flex-col-reverse gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p class="text-xs text-zinc-500">
+        Changing your email refreshes your sign-in token.
+      </p>
+      <button
+        type="submit"
+        [disabled]="savingProfile() || profileForm.pristine"
+        class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-rose-600 px-4 text-sm font-semibold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        @if (savingProfile()) {
+          <span
+            class="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+          ></span>
+          Saving…
+        } @else {
+          Save changes
+        }
+      </button>
+    </div>
+  </form>
+</section>
