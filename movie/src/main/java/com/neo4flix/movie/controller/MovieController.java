@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -31,9 +32,11 @@ public class MovieController {
     private final MovieService service;
 
     @GetMapping("/owned")
-    public ResponseEntity<List<MovieDetails>> findMyMovies(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<Page<MovieDetails>> findMyMovies(
+            @AuthenticationPrincipal Jwt jwt,
+            @PageableDefault(size = 20) Pageable pageable) {
         Long userId = extractUserId(jwt);
-        return ResponseEntity.ok(service.findOwnedMovies(userId));
+        return ResponseEntity.ok(service.findOwnedMovies(userId, pageable));
     }
 
     @GetMapping

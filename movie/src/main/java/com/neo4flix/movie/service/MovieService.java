@@ -173,9 +173,14 @@ public class MovieService {
     }
 
     @Transactional(readOnly = true)
-    public List<MovieDetails> findOwnedMovies(Long userId) {
+    public Page<MovieDetails> findOwnedMovies(Long userId, Pageable pageable) {
         Long validUserId = requireUserId(userId);
-        return repository.findOwnedMovies(validUserId);
+
+        if (pageable.getPageSize() < 1 || pageable.getPageSize() > 100) {
+            throw new IllegalArgumentException("Page size must be between 1 and 100");
+        }
+
+        return repository.findOwnedMovies(validUserId, pageable);
     }
 
     // Helpers
